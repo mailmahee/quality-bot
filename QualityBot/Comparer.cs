@@ -1,4 +1,5 @@
-﻿namespace QualityBot
+﻿
+namespace QualityBot
 {
     using System;
     using System.Collections.Generic;
