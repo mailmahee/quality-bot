@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="5924d513-b76c-450c-99dc-9dae3bee90c5" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>false</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://media.mfsbedev.com/MediaStore.v1.http" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="MediaStore.xsd" MetadataType="Schema" ID="10cb3cc2-2585-4c5a-b5c6-fd67d5fd72cf" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd3" />
+    <MetadataFile FileName="MediaStore1.xsd" MetadataType="Schema" ID="fb450c88-ae5e-42b2-8533-031fe1307d02" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd4" />
+    <MetadataFile FileName="MediaStore2.xsd" MetadataType="Schema" ID="a807b2fc-3bc5-412c-adbb-762133d9ef17" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd5" />
+    <MetadataFile FileName="MediaStore3.xsd" MetadataType="Schema" ID="dc00f742-3645-4183-8626-62fab0a1e731" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd6" />
+    <MetadataFile FileName="MediaStore4.xsd" MetadataType="Schema" ID="ffd64adb-6eb0-48a9-ba58-12d24bc308bc" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd7" />
+    <MetadataFile FileName="MediaStore.wsdl" MetadataType="Wsdl" ID="cde01ac3-e047-456b-a106-e513813d8e2e" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http" />
+    <MetadataFile FileName="MediaStore5.xsd" MetadataType="Schema" ID="077e6113-f72e-416f-bc20-388bdf306e5a" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd0" />
+    <MetadataFile FileName="MediaStore6.xsd" MetadataType="Schema" ID="ba2fab0f-9e65-4073-9694-de96849cfb11" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd1" />
+    <MetadataFile FileName="MediaStore7.xsd" MetadataType="Schema" ID="da889e56-7d7e-41e4-a1d8-dd1971ee582a" SourceId="1" SourceUrl="http://media.mfsbedev.com/MediaStore.v1.http?xsd=xsd2" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

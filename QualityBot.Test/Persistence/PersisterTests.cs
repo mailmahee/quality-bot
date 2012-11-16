@@ -10,9 +10,8 @@
     using QualityBot.ComparePocos;
     using QualityBot.Persistence;
     using QualityBot.RequestPocos;
-    using QualityBot.Test.Tests.Base;
-    using Webinator;
     using QualityBot.ScrapePocos;
+    using QualityBot.Test.Tests.Base;
 
     [TestFixture]
 	internal class PersisterTests : BaseTest
@@ -25,37 +24,6 @@
 
 		private static Logger log = LogManager.GetCurrentClassLogger();
 
-        [Test]
-        public void MediaService()
-        {
-            var comparer = new Comparer();
-            var scraper = new Scraper();
-
-            var requestA = new Request("google.com", "firefox", "10.1");
-            var requestB = new Request("google.com", "firefox", "10.1")
-            {
-                Script = @"var e = $('#gbqfba').clone();"
-                        + @"$(e).children().first().text('New Button');"
-                        + @"$(e).children().first().attr('id', 'newText');"
-                        + @"$(e).attr('id', 'newButton');"
-                        + @"$('#gbqfba').parent().append(e);"
-                        + @"$('#gbqfba').children().first().text('Text Changed');"
-            };
-            var scrapes = scraper.Scrape(requestA, requestB);
-            var comparison = comparer.Compare(scrapes[0], scrapes[1]);
-
-            // Persist scrapes to MongoDB (this will persist the resources to the Media Service)
-            var scrapePersister = PersisterFactory.CreateScrapePersisterInstance();
-            scrapePersister.Save(scrapes[0]);
-            scrapePersister.Save(scrapes[1]);
-            
-            // Persist comparison result to MongoDB (this will persist the resources to the Media Service)
-            var comparePersister = PersisterFactory.CreateComparePersisterInstance();
-            comparePersister.Save(comparison);
-            
-            WebManagerFactory.CloseInstances();
-        }
-        
 		[Test]
 		public void TestConnectToMongoDb()
 		{
@@ -65,7 +33,7 @@
             Assert.AreEqual(mongoDb.MongoDbName, mongoDb.Database.Name);
 		}
 
-		[Test]
+		//[Test]
 		public void TestSaveRequestToFileSystem()
 		{
 			var request = new Request();
@@ -86,12 +54,12 @@
 			Assert.IsTrue(files.Any(f => f.Contains("request.json")));
 		}
 
-		[Test]
+		//[Test]
 		public void TestSaveScrapeToFileSystem()
 		{
 			var url = "http://www.google.com?timestamp=" + GetTimestamp();
 
-            var scraper = new Scraper();
+            var scraper = new Service();
 		    var request = new Request(url, _browser, _browserVersion, _resolution);
 			var scrape = scraper.Scrape(request);
             
@@ -112,7 +80,7 @@
 			Assert.IsTrue(files.Any(f => f.Contains("Screenshot.png")));
 		}
 
-		[Test]
+		//[Test]
 		public void TestSaveComparisonToFileSystem()
 		{
 			var timestamp = GetTimestamp();
@@ -163,12 +131,11 @@
             Assert.IsTrue(mongoDb.Database.CollectionExists("comparisons"));
 		}
 
-		[Test]
+		//[Test]
 		public void SaveRequestToMongoDb()
 		{
 			var request = new Request();
 			request.Url = "http://www.example.com?timestamp=" + GetTimestamp();
-			request.Body = "SaveRequestToMongoDB";
 
 			var persister = PersisterFactory.CreateRequestPersisterInstance();
 			persister.Save(request);
@@ -196,7 +163,7 @@
 			Assert.IsInstanceOf(typeof(Request), returned);
 		}
 
-		[Test]
+		//[Test]
 		public void SaveScrapeToMongoDb()
 		{
 			var request = new Request();
@@ -212,6 +179,7 @@
             var collection = mongoDb.Database.GetCollection<Scrape>("scrapes");
             
             // check id
+            Console.WriteLine(scrape.Id);
             var query = Query.EQ("_id", scrape.Id);
             var results = collection.Find(query);
 		    Assert.AreEqual(1, results.Size(), "should only have 1 result returned from MongoDB because Id is unique");
@@ -230,7 +198,7 @@
 			Assert.IsInstanceOf(typeof(Scrape), returned);
 		}
         
-		[Test]
+		//[Test]
 		public void SaveComparisonToMongoDb()
 		{
 			var request1 = new Request();
@@ -265,7 +233,7 @@
 
 		private Scrape Scrape(Request request)
 		{
-            var scraper = new Scraper();
+            var scraper = new Service();
             var scrape = scraper.Scrape(request);
 
 			return scrape;

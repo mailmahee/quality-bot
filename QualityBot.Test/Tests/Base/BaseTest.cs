@@ -1,54 +1,22 @@
 namespace QualityBot.Test.Tests.Base
 {
     using System;
-    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Configuration;
     using NUnit.Framework;
-
     using QualityBot.ComparePocos;
     using QualityBot.Persistence;
     using QualityBot.ScrapePocos;
     using QualityBot.Util;
-    using Webinator;
 
     /// <summary>
     /// Contains the base objects needed by most tests.
     /// </summary>
     public class BaseTest
     {
-        protected readonly string SeleniumGridHubUri = AppConfigUtil.AppConfig("seleniumGrid2Hub");
-        protected readonly string DebugOutputDirectory = AppConfigUtil.AppConfig("debugOutputDirectory");
-        protected readonly bool OutputToFileForDebugging = AppConfigUtil.AppConfig<bool>("debugToOutputDirectory");
-
-        public Config GetFirefoxRemote()
-        {
-            return new Config
-            {
-                BaseUrl = "www.google.com",
-                Browser = Config.AvailableBrowsers.Firefox,
-                HighlightElements = false,
-                Framework = Config.AvailableFrameworks.WebDriverRemote,
-                LogRealTime = false,
-                LogScreenshots = false,
-                LogLevel = Config.AvailableLogLevels.None,
-                DesiredCapabilities = new Dictionary<string, object> { { "version", "10.1" } },
-                SeleniumGridHubUri = SeleniumGridHubUri
-            };
-        }
-
-        public Config GetChromeRemote()
-        {
-            return new Config
-            {
-                BaseUrl = "www.google.com",
-                Browser = Config.AvailableBrowsers.Chrome,
-                HighlightElements = false,
-                Framework = Config.AvailableFrameworks.WebDriverRemote,
-                LogRealTime = false,
-                LogScreenshots = false,
-                LogLevel = Config.AvailableLogLevels.None,
-                SeleniumGridHubUri = SeleniumGridHubUri
-            };
-        }
+        protected readonly string SeleniumGridHubUri = AppConfig("seleniumGrid2Hub");
+        protected readonly string DebugOutputDirectory = AppConfig("debugOutputDirectory");
+        protected readonly bool OutputToFileForDebugging = AppConfig<bool>("debugToOutputDirectory");
 
         /// <summary>
         /// Runs test and fails inconclusive if an error is thrown that isn't an assertion.
@@ -93,6 +61,43 @@ namespace QualityBot.Test.Tests.Base
                 cp.Save(comparison);
                 Console.WriteLine("Wrote comparsion to:{0}", comparison.Path.Value);
             }
+        }
+
+        /// <summary>
+        /// Gets the specified setting from app.config.
+        /// </summary>
+        /// <param name="setting">
+        /// The setting.
+        /// </param>
+        /// <typeparam name="T">
+        /// The type of object to return.
+        /// </typeparam>
+        /// <returns>
+        /// The setting as T.
+        /// </returns>
+        public static T AppConfig<T>(string setting)
+        {
+            if (typeof(T).IsEnum)
+            {
+                return (T)Enum.Parse(typeof(T), ConfigurationManager.AppSettings[setting], true);
+            }
+
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            return (T)converter.ConvertFrom(ConfigurationManager.AppSettings[setting]);
+        }
+
+        /// <summary>
+        /// Gets the specified setting from app.config.
+        /// </summary>
+        /// <param name="setting">
+        /// The setting.
+        /// </param>
+        /// <returns>
+        /// The setting as a string.
+        /// </returns>
+        public static string AppConfig(string setting)
+        {
+            return ConfigurationManager.AppSettings[setting];
         }
     }
 }

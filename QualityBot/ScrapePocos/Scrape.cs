@@ -1,9 +1,9 @@
 namespace QualityBot.ScrapePocos
 {
+    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
-
     using MongoDB.Bson;
     using QualityBot.Persistence;
     using QualityBot.Util;
@@ -12,17 +12,41 @@ namespace QualityBot.ScrapePocos
     {
         public Scrape()
         {
-            Cookies = new List<string>();
-            Path = new StringAsReference();
-            HtmlRef = new StringAsReference();
+            Cookies       = new List<string>();
+            Path          = new StringAsReference();
+            _idString     = new StringAsReference();
+            HtmlRef       = new StringAsReference();
             ScreenshotRef = new StringAsReference();
         }
 
         public ObjectId Id { get; set; }
 
+        private StringAsReference _idString;
+
+        public StringAsReference IdString
+        {
+            get
+            {
+                _idString.Value = Id.ToString();
+                return _idString;
+            }
+            set
+            {
+                _idString = value;
+            }
+        }
+
+        public string ExcludeJquerySelector { get; set; }
+
+        public string IncludeJquerySelector { get; set; }
+
+        public string Script { get; set; }
+
+        public Rectangle? BoundingRectangle { get; set; }
+
         public StringAsReference Path { get; set; }
 
-        public readonly List<ElementInfo> Elements = new List<ElementInfo>();
+        public List<ScrapedElement> Elements = new List<ScrapedElement>();
 
         public Resource[] Resources { get; set; }
 
@@ -42,7 +66,7 @@ namespace QualityBot.ScrapePocos
 
         public string BrowserVersion { get; set; }
 
-        public string TimeStamp { get; set; }
+        public DateTime TimeStamp { get; set; }
 
         public string Platform { get; set; }
 
@@ -56,7 +80,7 @@ namespace QualityBot.ScrapePocos
                    && ViewportSize.Equals(other.ViewportSize)
                    && string.Equals(Browser, other.Browser) 
                    && string.Equals(BrowserVersion, other.BrowserVersion)
-                   && string.Equals(TimeStamp, other.TimeStamp) 
+                   && DateTime.Equals(TimeStamp, other.TimeStamp) 
                    && string.Equals(Platform, other.Platform)
                    && Cookies.OrderBy(s => s).SequenceEqual(other.Cookies.OrderBy(t => t));
         }

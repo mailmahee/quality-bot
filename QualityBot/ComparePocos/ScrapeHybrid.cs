@@ -1,9 +1,9 @@
 namespace QualityBot.ComparePocos
 {
+    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Linq;
-    using MongoDB.Bson;
     using QualityBot.ScrapePocos;
     using QualityBot.Util;
 
@@ -17,9 +17,17 @@ namespace QualityBot.ComparePocos
             Screenshot = new StringAsReference();
         }
 
+        public string ExcludeJquerySelector { get; set; }
+
+        public string IncludeJquerySelector { get; set; }
+
+        public string Script { get; set; }
+
+        public Rectangle? BoundingRectangle { get; set; }
+
         public string Description { get; set; }
 
-        public ObjectId Id { get; set; }
+        public StringAsReference IdString { get; set; }
 
         public StringAsReference Path { get; set; }
 
@@ -37,7 +45,7 @@ namespace QualityBot.ComparePocos
 
         public string BrowserVersion { get; set; }
 
-        public string TimeStamp { get; set; }
+        public DateTime TimeStamp { get; set; }
 
         public string Platform { get; set; }
 

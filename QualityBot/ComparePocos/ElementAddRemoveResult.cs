@@ -16,11 +16,17 @@
 
         public Dictionary<string, string> Attributes { get; set; }
 
-        public string Image { get; set; }
+        public Image Image { get; set; }
+        
+        public string ImageStyle { get; set; }
 
-        public string ImageClipped { get; set; }
+        public Image ImageClipped { get; set; }
 
-        public string ImageMask { get; set; }
+        public string ImageClippedStyle { get; set; }
+
+        public Image ImageMask { get; set; }
+
+        public string ImageMaskStyle { get; set; }
 
         protected bool Equals(ElementAddRemoveResult other)
         {

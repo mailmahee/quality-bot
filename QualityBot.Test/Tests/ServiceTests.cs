@@ -1,52 +1,34 @@
-﻿using System;
-using QualityBot.RequestPocos;
-
-namespace QualityBot.Test.Tests
+﻿namespace QualityBot.Test.Tests
 {
-    using QualityBot.Test.Tests.Base;
+    using System;
+    using System.Linq;
     using NUnit.Framework;
-    using QualityBot;
+    using QualityBot.RequestPocos;
+    using QualityBot.Test.Tests.Base;
 
     [TestFixture]
     class ServiceTests : BaseTest
     {
-        [TestCase]
-        public void ValidateServiceIsNotNull()
+        [Test]
+        public void CanScrapeWithUrl()
         {
             //Arrange
-            QualityBot.Service qbService;
+            var expectedUrl = "http://www.ancestry.com";
 
             //Act
-            qbService = new QualityBot.Service();
-
-            //Assert
-            Assert.IsInstanceOf(typeof(Service), qbService, "Object is not of type QualityBot.Service");
-            Assert.IsNotNull(qbService, "Service object is Null");
-        }
-
-        [TestCase]
-        public void CanScrapeWithUrL()
-        {
-            //Arrange
-            QualityBot.Service qbService;
-            string expectedUrl = "www.ancestry.com";
-            string actualUrl;
-
-            //Act
-            qbService = new Service();
+            Service qbService = new Service();
             var retScrape = qbService.Scrape(expectedUrl);
-            actualUrl = retScrape.Url;
+            var actualUrl = retScrape.Url;
 
             //Assert
             Assert.IsTrue(actualUrl.Contains(expectedUrl), "Expected Url:{0} Actual Url:{1}", expectedUrl, actualUrl);
         }
 
-        [TestCase]
+        //[Test]
         public void CanCompareScrapes()
         {
             //Arrange
-            QualityBot.Service qbService;
-            var tmpScraper = new Scraper();
+            var tmpScraper = new Service();
             var tmpScrapeA = tmpScraper.Scrape(new Request("www.ancestry.com"));
             var tmpMongoIdA = new MongoDB.Bson.ObjectId(DateTime.Now, 0, 0, 0);
             tmpScrapeA.Id = tmpMongoIdA;
@@ -56,60 +38,57 @@ namespace QualityBot.Test.Tests
             tmpScrapeB.Id = tmpMongoIdB;
 
             //Act
-            qbService = new Service();
+            var qbService = new Comparer();
             var retvalComparison = qbService.Compare(tmpScrapeA, tmpScrapeB);
 
             //Assert
-            Assert.AreEqual(retvalComparison.Scrapes[0].Id, tmpScrapeA.Id, "Compare failed: Invalid ScrapeIDs Expected: {0}", tmpMongoIdA);
-            Assert.AreEqual(retvalComparison.Scrapes[1].Id, tmpScrapeB.Id, "Compare failed: Invalid ScrapeIDs Expected: {0}", tmpMongoIdB);
+            Assert.AreEqual(retvalComparison.Scrapes[0].IdString, tmpScrapeA.IdString, "Compare failed: Invalid ScrapeIDs Expected: {0}", tmpMongoIdA);
+            Assert.AreEqual(retvalComparison.Scrapes[1].IdString, tmpScrapeB.IdString, "Compare failed: Invalid ScrapeIDs Expected: {0}", tmpMongoIdB);
         }
 
-        [TestCase]
+        //[Test]
         public void CanPersistScrape()
         {
             //Arrange
-            Service qbService;
+            var qbService = new Service();
 
             //Act
-            qbService = new Service();
             var myScrape = qbService.Scrape("www.google.com");
 
             //Assert
             Assert.IsTrue(!String.IsNullOrEmpty(myScrape.Id.ToString()));
         }
 
-        [TestCase]
+        //[Test]
         public void CanPersistComparison()
         {
             //Arrange
-            Service qbService;
-            qbService = new Service();
+            var qbService = new Service();
             var myScrapeA = qbService.Scrape("www.google.com", false);
             var myScrapeB = qbService.Scrape("www.google.com", false);
 
             //Act
-            var myComparison = qbService.Compare(myScrapeA, myScrapeB);
+            var comparer = new Comparer();
+            var myComparison = comparer.Compare(myScrapeA, myScrapeB);
 
             //Assert
             Assert.IsTrue(!String.IsNullOrEmpty(myComparison.Id.ToString()), "Comparison Id is Null or Empty: {0}", myComparison.Id.ToString());
         }
 
-        [TestCase]
+        //[Test]
         public void CanCompareTwoUrls()
         {
             //Arrange
-            Service qbService;
             var urlbaseline = "www.ancestry.com";
             var urldelta = "www.ancestry.com";
             
-            
             //Act
-            qbService = new Service();
-            var tmpComparison = qbService.Compare(urlbaseline, urldelta);
+            var qbService = new Service();
+            var tmpComparison = qbService.Compare(urlbaseline, urldelta).First();
 
             //Assert
 
-            Assert.IsTrue(String.IsNullOrEmpty(tmpComparison.Id.ToString()), "Comparison Id is Null or Empty: {0}", tmpComparison.Id.ToString());
+            Assert.IsFalse(String.IsNullOrEmpty(tmpComparison.IdString), "Comparison Id is Null or Empty: {0}", tmpComparison.Id.ToString());
         }
     }
 }

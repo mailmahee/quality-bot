@@ -1,35 +1,16 @@
-﻿
-namespace QualityBot
+﻿namespace QualityBot
 {
     using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Linq;
-    using System.Web.Script.Serialization;
-
     using QualityBot.ComparePocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Util;
 
     public class Comparer
     {
-        /// <summary>
-        /// Compares the specified pages and returns an object detailing the differences.
-        /// </summary>
-        /// <param name="jsonA">The first page.</param>
-        /// <param name="jsonB">The second page.</param>
-        /// <returns>An object of type CompareResult.</returns>
-        public Comparison Compare(string jsonA, string jsonB)
-        {
-            var serializer = new JavaScriptSerializer();
-            serializer.MaxJsonLength = int.MaxValue;
-            var pageA = serializer.Deserialize<Scrape>(jsonA);
-            var pageB = serializer.Deserialize<Scrape>(jsonB);
-
-            return Compare(pageA, pageB);
-        }
-
         /// <summary>
         /// Compares the specified pages and returns an object detailing the differences.
         /// </summary>
@@ -51,22 +32,22 @@ namespace QualityBot
         /// <returns>An object of type CssChange.</returns>
         private static CssChange GetCssChanges(Dictionary<string, string> css1, Dictionary<string, string> css2, out decimal percentageChange)
         {
-            var cssKeysA = css1.Select(k => k.Key).ToArray();
-            var cssKeysB = css2.Select(k => k.Key).ToArray();
-            var addedKeys = cssKeysB.Except(cssKeysA).ToArray();
+            var cssKeysA    = css1.Select(k => k.Key).ToArray();
+            var cssKeysB    = css2.Select(k => k.Key).ToArray();
+            var addedKeys   = cssKeysB.Except(cssKeysA).ToArray();
             var deletedKeys = cssKeysA.Except(cssKeysB).ToArray();
-            var commonKeys = cssKeysA.Except(deletedKeys);
-            var changedCss = (from key in commonKeys
+            var commonKeys  = cssKeysA.Except(deletedKeys);
+            var changedCss  = (from key in commonKeys
                               where css1[key] != css2[key]
                               select new CssChangeDetail { From = css1[key], To = css2[key], Key = key }).ToList();
 
-            var length = css1.Count > css2.Count ? css1.Count : css2.Count;
-            var delta = (changedCss.Count + addedKeys.Length + deletedKeys.Length);
+            var length       = css1.Count > css2.Count ? css1.Count : css2.Count;
+            var delta        = (changedCss.Count + addedKeys.Length + deletedKeys.Length);
             percentageChange = length > 0 ? (delta / (decimal)length) * 100 : 0;
 
             return new CssChange
             {
-                Added = addedKeys.ToDictionary(key => key, key => css2[key]),
+                Added   = addedKeys.ToDictionary(key => key, key => css2[key]),
                 Deleted = deletedKeys.ToDictionary(key => key, key => css1[key]),
                 Changed = changedCss
             };
@@ -76,26 +57,27 @@ namespace QualityBot
         /// Returns information about the given element.
         /// </summary>
         /// <param name="pageScreenshot">The screenshot of the page containing the element.</param>
-        /// <param name="element">The element.</param>
+        /// <param name="scrapedElement">The element.</param>
         /// <param name="page">The page containing the element.</param>
         /// <param name="ia">The image attributes.</param>
         /// <returns>An ElementAddRemoveResult object.</returns>
-        private static ElementAddRemoveResult GetElementData(Image pageScreenshot, ElementInfo element, Scrape page, ImageAttributes ia)
+        private static ElementAddRemoveResult GetElementData(Image pageScreenshot, ScrapedElement scrapedElement, Scrape page, ImageAttributes ia)
         {
-            var originalA = ImageUtil.CropImage(pageScreenshot, element.LocationOnScreenshot);
-            var regionA = ImageUtil.GetClippedRegion(element.LocationOnScreenshot, page.Elements.Select(e => e.LocationOnScreenshot));
-            var clippedA = ImageUtil.GetClippedImage(new Size(element.LocationOnScreenshot.Width, element.LocationOnScreenshot.Height), originalA, regionA);
+            var originalA = ImageUtil.CropImage(pageScreenshot, scrapedElement.LocationOnScreenshot);
+            var regionA   = ImageUtil.GetClippedRegion(scrapedElement.LocationOnScreenshot, page.Elements.Select(e => e.LocationOnScreenshot));
+            var clippedA  = ImageUtil.GetClippedImage(new Size(scrapedElement.LocationOnScreenshot.Width, scrapedElement.LocationOnScreenshot.Height), originalA, regionA);
+            var imageMask = ImageUtil.DrawRegionAsMasks(new Size(scrapedElement.LocationOnScreenshot.Width, scrapedElement.LocationOnScreenshot.Height), regionA, originalA, ia);
 
             var add = new ElementAddRemoveResult
             {
-                Attributes = element.Attributes,
-                Html = element.Html,
-                Text = element.Text,
-                Location = element.LocationOnScreenshot,
-                Tag = element.Tag,
-                Image = ImageUtil.ImageToBase64(originalA, ImageFormat.Png),
-                ImageClipped = ImageUtil.ImageToBase64(clippedA, ImageFormat.Png),
-                ImageMask = ImageUtil.ImageToBase64(ImageUtil.DrawRegionAsMasks(new Size(element.LocationOnScreenshot.Width, element.LocationOnScreenshot.Height), regionA, originalA, ia), ImageFormat.Png)
+                Attributes   = scrapedElement.Attributes,
+                Html         = scrapedElement.Html,
+                Text         = scrapedElement.Text,
+                Location     = scrapedElement.LocationOnScreenshot,
+                Tag          = scrapedElement.Tag,
+                Image        = originalA,
+                ImageClipped = clippedA,
+                ImageMask    = imageMask
             };
 
             return add;
@@ -107,9 +89,9 @@ namespace QualityBot
         /// <param name="tag">The tag to match.</param>
         /// <param name="candidateElements">The elements that might contain a match.</param>
         /// <returns>A collection of matching elements.</returns>
-        private static IEnumerable<ElementInfo> GetElementsBySimilarTag(string tag, IEnumerable<ElementInfo> candidateElements)
+        private static IEnumerable<ScrapedElement> GetElementsBySimilarTag(string tag, IEnumerable<ScrapedElement> candidateElements)
         {
-            IEnumerable<ElementInfo> similarElements;
+            IEnumerable<ScrapedElement> similarElements;
             var parentTags = new[]
                 {
                     "body", "div", "span", "table", "tr", "td", "th", "tbody", 
@@ -196,39 +178,36 @@ namespace QualityBot
         /// <param name="ia">The image attributes to apply to the masks.</param>
         /// <param name="percentageChange">The change as a percentage.</param>
         /// <returns>An object containing information about the pixel differences.</returns>
-        private static PixelChange GetPixelChanges(Image psA, Image psB, ElementInfo eA, ElementInfo eB, Scrape pA, Scrape pB, ImageAttributes ia, out decimal percentageChange)
+        private static PixelChange GetPixelChanges(Image psA, Image psB, ScrapedElement eA, ScrapedElement eB, Scrape pA, Scrape pB, ImageAttributes ia, out decimal percentageChange)
         {
             PixelChange pixelChange = null;
 
-            var originalA = ImageUtil.CropImage(psA, eA.LocationOnScreenshot);
-            var originalB = ImageUtil.CropImage(psB, eB.LocationOnScreenshot);
-            var regionA = ImageUtil.GetClippedRegion(eA.LocationOnScreenshot, pA.Elements.Select(e => e.LocationOnScreenshot));
-            var regionB = ImageUtil.GetClippedRegion(eB.LocationOnScreenshot, pB.Elements.Select(e => e.LocationOnScreenshot));
-            var clippedA = ImageUtil.GetClippedImage(new Size(eA.LocationOnScreenshot.Width, eA.LocationOnScreenshot.Height), originalA, regionA);
-            var clippedB = ImageUtil.GetClippedImage(new Size(eB.LocationOnScreenshot.Width, eB.LocationOnScreenshot.Height), originalB, regionB);
-            var diffMask = ImageUtil.BitmapDiff(clippedA, clippedB, ia, out percentageChange);
+            Image originalA       = ImageUtil.CropImage(psA, eA.LocationOnScreenshot);
+            Image originalB       = ImageUtil.CropImage(psB, eB.LocationOnScreenshot);
+            Region regionA        = ImageUtil.GetClippedRegion(eA.LocationOnScreenshot, pA.Elements.Select(e => e.LocationOnScreenshot));
+            Region regionB        = ImageUtil.GetClippedRegion(eB.LocationOnScreenshot, pB.Elements.Select(e => e.LocationOnScreenshot));
+            Bitmap clippedA       = ImageUtil.GetClippedImage(new Size(eA.LocationOnScreenshot.Width, eA.LocationOnScreenshot.Height), originalA, regionA);
+            Bitmap clippedB       = ImageUtil.GetClippedImage(new Size(eB.LocationOnScreenshot.Width, eB.LocationOnScreenshot.Height), originalB, regionB);
+            Bitmap diffMask       = ImageUtil.BitmapDiff(clippedA, clippedB, ia, out percentageChange);
+            Bitmap fromRegionMask = ImageUtil.DrawRegionAsMasks(new Size(eA.LocationOnScreenshot.Width, eA.LocationOnScreenshot.Height), regionA, originalA, ia);
+            Bitmap toRegionMask   = ImageUtil.DrawRegionAsMasks(new Size(eB.LocationOnScreenshot.Width, eB.LocationOnScreenshot.Height), regionB, originalB, ia);
 
             if (percentageChange > 0 || eB.LocationOnScreenshot.Width != eA.LocationOnScreenshot.Width || eB.LocationOnScreenshot.Height != eA.LocationOnScreenshot.Height)
             {
                 pixelChange = new PixelChange
                 {
-                    From = ImageUtil.ImageToBase64(originalA, ImageFormat.Png),
-                    FromClipped = ImageUtil.ImageToBase64(clippedA, ImageFormat.Png),
-                    FromMask = ImageUtil.ImageToBase64(ImageUtil.DrawRegionAsMasks(new Size(eA.LocationOnScreenshot.Width, eA.LocationOnScreenshot.Height), regionA, originalA, ia), ImageFormat.Png),
-                    To = ImageUtil.ImageToBase64(originalB, ImageFormat.Png),
-                    ToClipped = ImageUtil.ImageToBase64(clippedB, ImageFormat.Png),
-                    ToMask = ImageUtil.ImageToBase64(ImageUtil.DrawRegionAsMasks(new Size(eB.LocationOnScreenshot.Width, eB.LocationOnScreenshot.Height), regionB, originalB, ia), ImageFormat.Png),
-                    Diff = ImageUtil.ImageToBase64(diffMask, ImageFormat.Png)
+                    From        = originalA,
+                    FromClipped = clippedA,
+                    FromMask    = fromRegionMask,
+                    To          = originalB,
+                    ToClipped   = clippedB,
+                    ToMask      = toRegionMask,
+                    Diff        = diffMask
                 };
             }
 
-            originalA.Dispose();
-            originalB.Dispose();
             regionA.Dispose();
             regionB.Dispose();
-            clippedA.Dispose();
-            clippedB.Dispose();
-            diffMask.Dispose();
 
             return pixelChange;
         }
@@ -241,13 +220,13 @@ namespace QualityBot
         /// <param name="diffEngine">The levenshtein difference engine.</param>
         /// <param name="percentageChange">The change as a percentage.</param>
         /// <returns>A string.</returns>
-        private static string GetStringChanges(string string1, string string2, diff_match_patch diffEngine, out decimal percentageChange)
+        private static string GetStringChanges(string string1, string string2, DiffMatchPatch diffEngine, out decimal percentageChange)
         {
-            var diffs = diffEngine.diff_main(string1, string2);
+            var diffs = diffEngine.DiffMain(string1, string2);
             var length = string1.Length > string2.Length ? string1.Length : string2.Length;
-            var delta = diffEngine.diff_levenshtein(diffs);
+            var delta = diffEngine.DiffLevenshtein(diffs);
             percentageChange = length > 0 ? (delta / (decimal)length) * 100 : 0;
-            return diffEngine.diff_prettyHtml(diffs);
+            return diffEngine.DiffPrettyHtml(diffs);
         }
 
         /// <summary>
@@ -257,10 +236,10 @@ namespace QualityBot
         /// <param name="text2">The second string.</param>
         /// <param name="diffEngine">The levenshtein difference engine.</param>
         /// <returns>An integer value.</returns>
-        private static int TextDistance(string text1, string text2, diff_match_patch diffEngine)
+        private static int TextDistance(string text1, string text2, DiffMatchPatch diffEngine)
         {
             if (string.IsNullOrWhiteSpace(text1) && string.IsNullOrWhiteSpace(text2)) return 0;
-            return diffEngine.diff_levenshtein(diffEngine.diff_main(text1, text2));
+            return diffEngine.DiffLevenshtein(diffEngine.DiffMain(text1, text2));
         }
 
         /// <summary>
@@ -270,7 +249,7 @@ namespace QualityBot
         /// <param name="eB">The second element.</param>
         /// <param name="diffEngine">The levenshtein difference engine.</param>
         /// <returns>A decimal value.</returns>
-        private decimal AttributesSimilarity(ElementInfo eA, ElementInfo eB, diff_match_patch diffEngine)
+        private decimal AttributesSimilarity(ScrapedElement eA, ScrapedElement eB, DiffMatchPatch diffEngine)
         {
             var keysA = eA.Attributes.Select(k => k.Key).ToArray();
             var keysB = eB.Attributes.Select(k => k.Key).ToArray();
@@ -286,7 +265,7 @@ namespace QualityBot
             foreach (var detail in changed)
             {
                 var maxLength = detail.From.Length > detail.To.Length ? detail.From.Length : detail.To.Length;
-                var distance = diffEngine.diff_levenshtein(diffEngine.diff_main(detail.From, detail.To));
+                var distance = diffEngine.DiffLevenshtein(diffEngine.DiffMain(detail.From, detail.To));
                 totalPercentage += maxLength > 0 ? (distance / (decimal)maxLength) * 100 : 0;
             }
 
@@ -311,43 +290,51 @@ namespace QualityBot
                             {
                                 new ScrapeHybrid
                                     {
-                                        Description    = "Baseline",
-                                        Id             = pageA.Id,
-                                        Path           = pageA.Path,
-                                        Resources      = pageA.Resources,
-                                        Cookies        = pageA.Cookies,
-                                        Html           = pageA.HtmlRef,
-                                        Url            = pageA.Url,
-                                        Screenshot     = pageA.ScreenshotRef,
-                                        ViewportSize   = pageA.ViewportSize,
-                                        Browser        = pageA.Browser,
-                                        BrowserVersion = pageA.BrowserVersion,
-                                        TimeStamp      = pageA.TimeStamp,
-                                        Platform       = pageA.Platform
+                                        IncludeJquerySelector = pageA.IncludeJquerySelector,
+                                        ExcludeJquerySelector = pageA.ExcludeJquerySelector,
+                                        Script                = pageA.Script,
+                                        BoundingRectangle     = pageA.BoundingRectangle,
+                                        Description           = "Baseline",
+                                        IdString              = pageA.IdString,
+                                        Path                  = pageA.Path,
+                                        Resources             = pageA.Resources,
+                                        Cookies               = pageA.Cookies,
+                                        Html                  = pageA.HtmlRef,
+                                        Url                   = pageA.Url,
+                                        Screenshot            = pageA.ScreenshotRef,
+                                        ViewportSize          = pageA.ViewportSize,
+                                        Browser               = pageA.Browser,
+                                        BrowserVersion        = pageA.BrowserVersion,
+                                        TimeStamp             = pageA.TimeStamp,
+                                        Platform              = pageA.Platform
                                     },
                                 new ScrapeHybrid
                                     {
-                                        Description    = "Delta",
-                                        Id             = pageB.Id,
-                                        Path           = pageB.Path,
-                                        Resources      = pageB.Resources,
-                                        Cookies        = pageB.Cookies,
-                                        Html           = pageB.HtmlRef,
-                                        Url            = pageB.Url,
-                                        Screenshot     = pageB.ScreenshotRef,
-                                        ViewportSize   = pageB.ViewportSize,
-                                        Browser        = pageB.Browser,
-                                        BrowserVersion = pageB.BrowserVersion,
-                                        TimeStamp      = pageB.TimeStamp,
-                                        Platform       = pageB.Platform
+                                        IncludeJquerySelector = pageB.IncludeJquerySelector,
+                                        ExcludeJquerySelector = pageB.ExcludeJquerySelector,
+                                        Script                = pageB.Script,
+                                        BoundingRectangle     = pageB.BoundingRectangle,
+                                        Description           = "Delta",
+                                        IdString              = pageB.IdString,
+                                        Path                  = pageB.Path,
+                                        Resources             = pageB.Resources,
+                                        Cookies               = pageB.Cookies,
+                                        Html                  = pageB.HtmlRef,
+                                        Url                   = pageB.Url,
+                                        Screenshot            = pageB.ScreenshotRef,
+                                        ViewportSize          = pageB.ViewportSize,
+                                        Browser               = pageB.Browser,
+                                        BrowserVersion        = pageB.BrowserVersion,
+                                        TimeStamp             = pageB.TimeStamp,
+                                        Platform              = pageB.Platform
                                     }
                             }
                 };
 
-            var result = new PageResult();
-            var diffEngine = new diff_match_patch { Diff_Timeout = 0 };
-            var cm = new ColorMatrix { Matrix33 = 0.25f };
-            var ia = new ImageAttributes();
+            var result          = new PageResult();
+            var diffEngine      = new DiffMatchPatch { Diff_Timeout = 0 };
+            var cm              = new ColorMatrix { Matrix33 = 0.25f };
+            var ia              = new ImageAttributes();
             ia.SetColorMatrix(cm);
             var pageScreenshotA = ImageUtil.Base64ToImage(pageA.Screenshot);
             var pageScreenshotB = ImageUtil.Base64ToImage(pageB.Screenshot);
@@ -356,7 +343,7 @@ namespace QualityBot
              * This only does a text based comparison so you can't 
              *  really derive html nodes from it
              */
-            result.HtmlDiff = diffEngine.diff_prettyHtml(diffEngine.diff_wordMode(pageA.Html, pageB.Html));
+            result.HtmlDiff = diffEngine.DiffPrettyHtml(diffEngine.DiffWordMode(pageA.Html, pageB.Html));
 
             /* Pixel diff
              * This is more significant than a byte diff, and 
@@ -372,14 +359,14 @@ namespace QualityBot
 
             /* Find differences (added, deleted or modified)
              */
-            ElementInfo[] unchanged; ElementInfo[] changed; ElementInfo[] added; ElementInfo[] deleted;
+            ScrapedElement[] unchanged; ScrapedElement[] changed; ScrapedElement[] added; ScrapedElement[] deleted;
             FindCorrespondingElements(pageA, pageB, out unchanged, out changed, out added, out deleted, diffEngine);
 
             // Check changed, determine what was changed
-            var changeMap = new Dictionary<ElementChangeResult, ElementInfo>();
+            var changeMap = new Dictionary<ElementChangeResult, ScrapedElement>();
             foreach (var eB in changed)
             {
-                var eA = eB.CorrespondingElement;
+                var eA = eB.CorrespondingScrapedElement;
                 var itemResult = new ElementChangeResult();
 
                 // Location changed
@@ -411,7 +398,7 @@ namespace QualityBot
             }
 
             // Check unchanged for pixel diff
-            var moveList = new List<ElementInfo>();
+            var moveList = new List<ScrapedElement>();
             foreach (var e in unchanged)
             {
                 decimal percentageChange;
@@ -523,21 +510,21 @@ namespace QualityBot
         /// Attempts to determine which element on page A corresponds to which element on page B.
         /// </summary>
         /// <returns>A collection of mappings.</returns>
-        private void FindCorrespondingElements(Scrape pageA, Scrape pageB, out ElementInfo[] unchanged, out ElementInfo[] changed, out ElementInfo[] added, out ElementInfo[] deleted, diff_match_patch diffEngine)
+        private void FindCorrespondingElements(Scrape pageA, Scrape pageB, out ScrapedElement[] unchanged, out ScrapedElement[] changed, out ScrapedElement[] added, out ScrapedElement[] deleted, DiffMatchPatch diffEngine)
         {
             /* Find exact matches (html, css, and location is equivalent)
              *  The pixels may have changed, but we'll check that later
              */
-            var unchangedListA = new List<ElementInfo>();
-            var unchangedListB = new List<ElementInfo>();
+            var unchangedListA = new List<ScrapedElement>();
+            var unchangedListB = new List<ScrapedElement>();
 
             foreach (var eA in pageA.Elements)
             {
                 var a = eA;
                 foreach (var eB in pageB.Elements.Where(eB => a == eB))
                 {
-                    eB.CorrespondingElement = eA;
-                    eA.CorrespondingElement = eB;
+                    eB.CorrespondingScrapedElement = eA;
+                    eA.CorrespondingScrapedElement = eB;
                     unchangedListA.Add(eA);
                     unchangedListB.Add(eB);
                     break;
@@ -547,9 +534,9 @@ namespace QualityBot
             var pageElementsB = pageB.Elements.Except(unchangedListB).ToList();
 
             // Find corresponding elements by ID
-            var changeList = new List<ElementInfo>();
-            var matchedListA = new List<ElementInfo>();
-            var matchedListB = new List<ElementInfo>();
+            var changeList = new List<ScrapedElement>();
+            var matchedListA = new List<ScrapedElement>();
+            var matchedListB = new List<ScrapedElement>();
             foreach (var eB in pageElementsB)
             {
                 foreach (var eA in pageElementsA)
@@ -561,8 +548,8 @@ namespace QualityBot
                     if (idA != idB) continue;
 
                     changeList.Add(eB);
-                    eB.CorrespondingElement = eA;
-                    eA.CorrespondingElement = eB;
+                    eB.CorrespondingScrapedElement = eA;
+                    eA.CorrespondingScrapedElement = eB;
                     matchedListA.Add(eA);
                     matchedListB.Add(eB);
                     break;
@@ -573,15 +560,15 @@ namespace QualityBot
             pageElementsB = pageElementsB.Except(matchedListB).ToList();
 
             // If no similar candidates are found, then assume addition
-            var addList = new List<ElementInfo>();
+            var addList = new List<ScrapedElement>();
             foreach (var eB in pageElementsB)
             {
                 var match = MostLikelyCandidate(eB, pageElementsA, diffEngine);
                 if (match != null)
                 {
                     changeList.Add(eB);
-                    eB.CorrespondingElement = match;
-                    match.CorrespondingElement = eB;
+                    eB.CorrespondingScrapedElement = match;
+                    match.CorrespondingScrapedElement = eB;
                     pageElementsA.Remove(match);
                 }
                 else
@@ -600,27 +587,27 @@ namespace QualityBot
         /// Determines the element most likely to correspond to the target element.
         /// Returns null if no match was found.
         /// </summary>
-        /// <param name="targetElement">The target element.</param>
+        /// <param name="targetScrapedElement">The target element.</param>
         /// <param name="candidateElements">The candidate elements.</param>
         /// <param name="diffEngine">The levenshtein difference engine.</param>
         /// <returns>An ElementInfo object.</returns>
-        private ElementInfo MostLikelyCandidate(ElementInfo targetElement, IEnumerable<ElementInfo> candidateElements, diff_match_patch diffEngine)
+        private ScrapedElement MostLikelyCandidate(ScrapedElement targetScrapedElement, IEnumerable<ScrapedElement> candidateElements, DiffMatchPatch diffEngine)
         {
             /*  - Get elements with similar tag names
              *      - Order by text similarity, then attributes, then tag name, then distance, and then area
              */
-            ElementInfo[] candidates = GetElementsBySimilarTag(targetElement.Tag, candidateElements).ToArray();
+            ScrapedElement[] candidates = GetElementsBySimilarTag(targetScrapedElement.Tag, candidateElements).ToArray();
 
-            var targetElementTextLength = targetElement.Text.Length;
+            var targetElementTextLength = targetScrapedElement.Text.Length;
 
             candidates = (from candidate in candidates
                          let maxLength = Math.Max(candidate.Text.Length, targetElementTextLength)
-                         let textDistance = maxLength > 0 ? (TextDistance(candidate.Text, targetElement.Text, diffEngine) / (decimal)maxLength) * 100 : 0
-                         let attributeDistance = AttributesSimilarity(targetElement, candidate, diffEngine)
+                         let textDistance = maxLength > 0 ? (TextDistance(candidate.Text, targetScrapedElement.Text, diffEngine) / (decimal)maxLength) * 100 : 0
+                         let attributeDistance = AttributesSimilarity(targetScrapedElement, candidate, diffEngine)
                          where textDistance <= 15 && attributeDistance <= 40
-                         orderby textDistance, attributeDistance, candidate.Tag.Equals(targetElement.Tag), 
-                            RectangleUtil.DistanceBetweenRectangles(candidate.Location, targetElement.Location),
-                            RectangleUtil.AreaDifferenceBetweenRectangles(candidate.Location, targetElement.Location)
+                         orderby textDistance, attributeDistance, candidate.Tag.Equals(targetScrapedElement.Tag), 
+                            RectangleUtil.DistanceBetweenRectangles(candidate.Location, targetScrapedElement.Location),
+                            RectangleUtil.AreaDifferenceBetweenRectangles(candidate.Location, targetScrapedElement.Location)
                          select candidate).ToArray();
 
             return candidates.FirstOrDefault();

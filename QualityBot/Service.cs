@@ -1,89 +1,236 @@
-﻿using System;
-using QualityBot.ComparePocos;
-using QualityBot.RequestPocos;
-using QualityBot.ScrapePocos;
-
-namespace QualityBot
+﻿namespace QualityBot
 {
-    public class Service
+    using System;
+    using System.Drawing;
+    using System.Linq;
+    using OpenQA.Selenium;
+    using QualityBot.ComparePocos;
+    using QualityBot.Persistence;
+    using QualityBot.RequestPocos;
+    using QualityBot.ScrapePocos;
+    using QualityBot.Scrapers;
+
+    public class Service : IService
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="url"></param>
-        /// <param name="persist"> </param>
-        /// <returns></returns>
+        private Persister<Comparison> _comparePersister;
+
+        private Persister<Scrape> _scrapePersister;
+
+        private ScrapeBuilder _scrapeBuilder;
+
+        public Service()
+        {
+            _comparePersister = PersisterFactory.CreateComparePersisterInstance();
+            _scrapePersister = PersisterFactory.CreateScrapePersisterInstance();
+
+            var elementProvider = new ElementProvider();
+            var webRequestUtil = new WebRequestUtil();
+            _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
+        }
+
+        public Comparison[] Compare(string urlA, string urlB, bool persist = true)
+        {
+            // Create Scrape(s)
+            var requestA = new Request(urlA);
+            var requestB = new Request(urlB);
+            var scrapeA = DoScrape(requestA);
+            var scrapeB = DoScrape(requestB);
+
+            // Pass Scrape to Comparison
+            var comparer = new Comparer();
+            var comparison = comparer.Compare(scrapeA, scrapeB);
+
+            // Persist Scrapes
+            SaveScrapes(persist, scrapeA, scrapeB);
+
+            // Persist Comparison Obj
+            SaveComparison(persist, comparison);
+
+            return new[] { comparison };
+        }
+
+        public Comparison[] CompareDynamic(dynamic requestA, dynamic requestB, bool persist = true)
+        {
+            var rA = new Request
+            {
+                BoundingRectangle = GetRectangle((string)requestA.boundingRectangle),
+                Browser = requestA.browser,
+                BrowserVersion = requestA.browserVersion,
+                IncludeJquerySelector = requestA.includeJquerySelector,
+                ExcludeJquerySelector = requestA.excludeJquerySelector,
+                Script = requestA.script,
+                ViewportResolution = GetSize((string)requestA.viewportResolution),
+                Url = requestA.url
+            };
+
+            var rB = new Request
+            {
+                BoundingRectangle = GetRectangle((string)requestB.boundingRectangle),
+                Browser = requestB.browser,
+                BrowserVersion = requestB.browserVersion,
+                IncludeJquerySelector = requestB.includeJquerySelector,
+                ExcludeJquerySelector = requestB.excludeJquerySelector,
+                Script = requestB.script,
+                ViewportResolution = GetSize((string)requestB.viewportResolution),
+                Url = requestB.url
+            };
+
+            var scrapeA = DoScrape(rA);
+            var scrapeB = DoScrape(rB);
+
+            // Pass Scrapes to Comparison
+            var comparer = new Comparer();
+            var comparison = comparer.Compare(scrapeA, scrapeB);
+
+            // Persist Scrapes
+            SaveScrapes(persist, scrapeA, scrapeB);
+
+            // Persist Comparison Obj
+            SaveComparison(persist, comparison);
+
+            return new[] { comparison };
+        }
+
+        public Comparison[] CompareScrapeIds(string scrapeIdA, string scrapeIdB, bool persist)
+        {
+            var persister = PersisterFactory.CreateScrapePersisterInstance();
+
+            var scrapeA = persister.Load(scrapeIdA).First();
+            var scrapeB = persister.Load(scrapeIdB).First();
+
+            // Pass Scrapes to Comparison
+            var comparer = new Comparer();
+            var comparison = comparer.Compare(scrapeA, scrapeB);
+
+            // Persist Comparison Obj
+            SaveComparison(persist, comparison);
+
+            return new[] { comparison };
+        }
+
         public Scrape Scrape(string url, bool persist = true)
         {
-            Scrape retval = null;
-            try
-            {
-                var tmpScraper = new Scraper();
-                var tmpRequest = new Request(url);
-                var tmpScrape = tmpScraper.Scrape(tmpRequest);
+            // Get scrape
+            var request = new Request(url);
+            var scrape = DoScrape(request);
 
-                if (tmpScrape != null)
-                {
-                    retval = tmpScrape;
-                    if(persist)
-                    {
-                        var tmpPersister = new Persistence.ScrapePersister();
-                        tmpPersister.SaveToMongoDb(tmpScrape);
-                    }
-                }
-            }
-            catch (Exception ex)
+            // Persist Scrape
+            SaveScrapes(persist, scrape);
+
+            return scrape;
+        }
+
+        public string ScrapeDynamic(dynamic request)
+        {
+            var sR = new Request
             {
-                
-                throw;
-            }
-           
-            return retval;
+                BoundingRectangle = GetRectangle((string)request.boundingRectangle),
+                Browser = request.browser,
+                BrowserVersion = request.browserVersion,
+                IncludeJquerySelector = request.includeJquerySelector,
+                ExcludeJquerySelector = request.excludeJquerySelector,
+                Script = request.script,
+                ViewportResolution = GetSize((string)request.viewportResolution),
+                Url = request.url
+            };
+
+            var scrape = DoScrape(sR);
+
+            SaveScrapes(true, scrape);
+
+            return scrape.IdString.Value;
         }
 
         /// <summary>
-        /// 
+        /// Scrapes the page as defined by the request object.
         /// </summary>
-        /// <param name="pageA"></param>
-        /// <param name="pageB"></param>
-        /// <returns></returns>
-        public Comparison Compare(Scrape pageA, Scrape pageB, bool persist = true)
+        /// <param name="request">The request.</param>
+        /// <returns>An object containing information about the web page as a Scrape object.</returns>
+        public Scrape Scrape(Request request)
         {
-            Comparison retComparison = null;
-            var tmpComparer = new Comparer();
-
-            retComparison = tmpComparer.Compare(pageA, pageB);
-            if (retComparison != null)
-            {
-                if(persist)
-                {
-                    var tmpPersister = new Persistence.ComparePersister();
-
-                    tmpPersister.SaveToMongoDb(retComparison);
-                }
-            }
-            return retComparison;
+            return DoScrape(request);
         }
 
-        public Comparison Compare(string urlA, string urlB)
+        /// <summary>
+        /// Scrapes the current page.
+        /// </summary>
+        /// <param name="webDriver">The WebDriver instance to use.</param>
+        /// <param name="request">The request.</param>
+        /// <returns>An object containing information about the web page as a Scrape object.</returns>
+        public Scrape ScrapeCurrent(IWebDriver webDriver, Request request)
         {
-            Comparison retComparison = null;
-            
-            // Create Scrape(s)
-            var tmpService = new Service();
-            var retScrapeA = tmpService.Scrape("www.ancestry.com", false);
-            var retScrapeB = tmpService.Scrape("www.ancestrystage.com", false);
+            Scrape scrape;
+            using (var facade = FacadeFactory.CreateFacade(webDriver, request))
+            {
+                var data = facade.ScrapeData();
+                scrape = _scrapeBuilder.BuildScrape(request, data);
+            }
 
-            //Pass Scrape to Comparison
-            var tmpComparer = new Comparer();
-            retComparison = tmpComparer.Compare(retScrapeA, retScrapeB);
+            return scrape;
+        }
 
-            // Persit Comparison Obj
-            var tmpPersiter = new Persistence.ComparePersister();
+        private Scrape DoScrape(Request request)
+        {
+            Scrape scrape;
+            using (var facade = FacadeFactory.CreateFacade(request))
+            {
+                var data = facade.ScrapeData();
+                scrape = _scrapeBuilder.BuildScrape(request, data);
+            }
 
-            tmpPersiter.SaveToMongoDb(retComparison);
+            return scrape;
+        }
 
-            return retComparison;
+        private Rectangle? GetRectangle(string rectangle)
+        {
+            Rectangle? rect;
+            try
+            {
+                var rectData = rectangle.Split(',');
+                rect = new Rectangle(int.Parse(rectData[0]), int.Parse(rectData[1]), int.Parse(rectData[2]), int.Parse(rectData[3]));
+            }
+            catch (Exception)
+            {
+                rect = null;
+            }
+
+            if (rect != null && (rect.Value.X < 1 || rect.Value.Y < 1 || rect.Value.Width < 1 || rect.Value.Height < 1)) rect = null;
+
+            return rect;
+        }
+
+        private Size? GetSize(string size)
+        {
+            Size? sz;
+            try
+            {
+                var sizeData = (size).Split(',');
+                sz = new Size(int.Parse(sizeData[0]), int.Parse(sizeData[1]));
+            }
+            catch (Exception)
+            {
+                sz = null;
+            }
+
+            return sz;
+        }
+
+        private void SaveComparison(bool persist, params Comparison[] comparisons)
+        {
+            if (!persist) return;
+            foreach (var comparison in comparisons.Where(comparison => comparison != null))
+            {
+                _comparePersister.Save(comparison);
+            }
+        }
+
+        private void SaveScrapes(bool persist, params Scrape[] scrapes)
+        {
+            if (!persist) return;
+            foreach (var scrape in scrapes.Where(scrape => scrape != null))
+            {
+                _scrapePersister.Save(scrape);
+            }
         }
     }
 }

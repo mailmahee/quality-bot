@@ -2,18 +2,25 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Imaging;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
+    using Mapper;
     using Newtonsoft.Json;
-
     using QualityBot.ComparePocos;
     using QualityBot.Util;
 
-    public class ComparePersister : IPersister<Comparison>
+    public sealed class ComparePersister : IPersister<Comparison>, IDisposable
     {
         private MediaServicePersister _mediaServicePersister;
 
         private MongoDbPersister _mongoDbPersister;
+
+        private SpriteUtil _spriteUtil;
+
+        private string _style;
 
         private MongoDbPersister MongoDbPersister
         {
@@ -26,6 +33,7 @@
         public ComparePersister()
         {
             _mediaServicePersister = new MediaServicePersister();
+            _spriteUtil = new SpriteUtil();
         }
 
         public Comparison RetrieveFromDisc(string file)
@@ -36,13 +44,14 @@
             return compare;
         }
 
-        public IEnumerable<Comparison> RetrieveFromMongoDb(Comparison data)
+        public IEnumerable<Comparison> RetrieveFromMongoDb(string id)
         {
-            return MongoDbPersister.LoadFromMongoDb(data);
+            return MongoDbPersister.LoadFromMongoDb<Comparison>(id);
         }
 
         public void SaveToDisc(string outputDir, Comparison data)
         {
+            data.TimeStamp = DateTime.Now;
             Directory.CreateDirectory(outputDir);
             var now = DateTime.Now.ToString("yyyyMMddHHmmssfffffff");
 
@@ -58,32 +67,46 @@
                 data.Result.Html.Images[i] = ImageUtil.SaveImageToDisc(outputDir, data.Result.Html.Images[i], "HtmlDiff");
             }
 
-            // Save images from added elements
-            foreach (var e in data.Result.AddedItems)
+            // Stitch together images
+            var images = GetAllImages(data.Result);
+            var tooManyDiffs = data.Result.ChangedItems.Count > 50 || data.Result.AddedItems.Count > 100 || data.Result.AddedItems.Count > 100;
+            if (images.Any() && !tooManyDiffs)
             {
-                e.Image = ImageUtil.SaveImageToDisc(outputDir, e.Image, "Image");
-                e.ImageClipped = ImageUtil.SaveImageToDisc(outputDir, e.ImageClipped, "ImageClipped");
-                e.ImageMask = ImageUtil.SaveImageToDisc(outputDir, e.ImageMask, "ImageMask");
+                var sprite = _spriteUtil.MapImagesToSprite(images);
+                var spriteImage = _spriteUtil.DrawSprite(sprite);
+
+                // Save sprite to disc
+                var base64Sprite = ImageUtil.ImageToBase64(spriteImage, ImageFormat.Png);
+                var spritePath = ImageUtil.SaveImageToDisc(outputDir, base64Sprite, "sprite");
+                _style = @"width: {0}px; height: {1}px; background: transparent url('" + spritePath + "') -{2}px -{3}px no-repeat";
+
+                // Update styles
+                UpdateStyles(data.Result, sprite);
+            }
+            else if (images.Any() && tooManyDiffs)
+            {
+                Image image;
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("QualityBot.toomany.png"))
+                {
+                    image = Image.FromStream(stream);
+                }
+
+                // Save sprite to disc
+                var base64Sprite = ImageUtil.ImageToBase64(image, ImageFormat.Png);
+                var spritePath = ImageUtil.SaveImageToDisc(outputDir, base64Sprite, "sprite");
+                _style = @"width: {0}px; height: {1}px; background: transparent url('" + spritePath + "') -{2}px -{3}px no-repeat";
+
+                // Update styles
+                UpdateStyles(data.Result, image);
             }
 
-            // Save images from removed elements
-            foreach (var e in data.Result.RemovedItems)
+            if (images.Any())
             {
-                e.Image = ImageUtil.SaveImageToDisc(outputDir, e.Image, "Image");
-                e.ImageClipped = ImageUtil.SaveImageToDisc(outputDir, e.ImageClipped, "ImageClipped");
-                e.ImageMask = ImageUtil.SaveImageToDisc(outputDir, e.ImageMask, "ImageMask");
-            }
+                // Dispose all images
+                images.ForEach(i => i.Dispose());
 
-            // Save images from changed elements
-            foreach (var e in data.Result.ChangedItems.Where(e => e.PixelChanges != null))
-            {
-                e.PixelChanges.From = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.From, "From");
-                e.PixelChanges.FromClipped = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.FromClipped, "FromClipped");
-                e.PixelChanges.FromMask = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.FromMask, "FromMask");
-                e.PixelChanges.To = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.To, "To");
-                e.PixelChanges.ToClipped = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.ToClipped, "ToClipped");
-                e.PixelChanges.ToMask = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.ToMask, "ToMask");
-                e.PixelChanges.Diff = ImageUtil.SaveImageToDisc(outputDir, e.PixelChanges.Diff, "Diff");
+                // Set images to null (for serializer)
+                SetImagesToNull(data.Result);
             }
 
             // Save html difference
@@ -95,17 +118,18 @@
             // Save json
             var file = Path.Combine(outputDir, string.Format(@"{0}_comparison.json", now));
             data.Path.Value = file;
-            var json = JsonUtil.Serialize(data);
+            var json = JsonConvert.SerializeObject(data);
             File.WriteAllText(file, json);
         }
 
         public void SaveToMongoDb(Comparison data)
         {
             SaveResourcesToMediaService(data);
+            data.TimeStamp = DateTime.Now;
             MongoDbPersister.InsertItemInCollection(data);
         }
-
-        private void SaveResourcesToMediaService(Comparison data)
+        //Was private
+        internal void SaveResourcesToMediaService(Comparison data)
         {
             // Save pixel diffs
             for (var i = 0; i < data.Result.Pixels.Images.Count; i++)
@@ -119,44 +143,173 @@
                 data.Result.Html.Images[i] = _mediaServicePersister.SaveImageToMediaService(data.Result.Html.Images[i], "HtmlDiff", "png");
             }
 
-            // Save images from added elements
-            foreach (var e in data.Result.AddedItems)
+            // Stitch together images
+            var images = GetAllImages(data.Result);
+            var tooManyDiffs = data.Result.ChangedItems.Count > 50 || data.Result.AddedItems.Count > 100 || data.Result.AddedItems.Count > 100;
+            if (images.Any() && !tooManyDiffs)
             {
-                e.Image = _mediaServicePersister.SaveImageToMediaService(e.Image, "Image", "png");
-                e.ImageClipped = _mediaServicePersister.SaveImageToMediaService(e.ImageClipped, "ImageClipped", "png");
-                e.ImageMask = _mediaServicePersister.SaveImageToMediaService(e.ImageMask, "ImageMask", "png");
+                var sprite = _spriteUtil.MapImagesToSprite(images);
+                var spriteImage = _spriteUtil.DrawSprite(sprite);
+
+                // Save sprite to Media Service
+                var base64Sprite = ImageUtil.ImageToBase64(spriteImage, ImageFormat.Png);
+                var spritePath = _mediaServicePersister.SaveImageToMediaService(base64Sprite, "Image", "png");
+                _style = @"width: {0}px; height: {1}px; background: transparent url('" + spritePath + "') -{2}px -{3}px no-repeat";
+
+                // Update styles
+                UpdateStyles(data.Result, sprite);
+            }
+            else if (images.Any() && tooManyDiffs)
+            {
+                Image image;
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("QualityBot.toomany.png"))
+                {
+                    image = Image.FromStream(stream);
+                }
+
+                // Save sprite to Media Service
+                var base64Sprite = ImageUtil.ImageToBase64(image, ImageFormat.Png);
+                var spritePath = _mediaServicePersister.SaveImageToMediaService(base64Sprite, "Image", "png");
+                _style = @"width: {0}px; height: {1}px; background: transparent url('" + spritePath + "') -{2}px -{3}px no-repeat";
+
+                // Update styles
+                UpdateStyles(data.Result, image);
             }
 
-            // Save images from removed elements
-            foreach (var e in data.Result.RemovedItems)
+            if (images.Any())
             {
-                e.Image = _mediaServicePersister.SaveImageToMediaService(e.Image, "Image", "png");
-                e.ImageClipped = _mediaServicePersister.SaveImageToMediaService(e.ImageClipped, "ImageClipped", "png");
-                e.ImageMask = _mediaServicePersister.SaveImageToMediaService(e.ImageMask, "ImageMask", "png");
-            }
+                // Dispose all images
+                images.ForEach(i => i.Dispose());
 
-            // Save images from changed elements
-            foreach (var e in data.Result.ChangedItems.Where(e => e.PixelChanges != null))
-            {
-                e.PixelChanges.From = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.From, "From", "png");
-                e.PixelChanges.FromClipped = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.FromClipped, "FromClipped", "png");
-                e.PixelChanges.FromMask = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.FromMask, "FromMask", "png");
-                e.PixelChanges.To = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.To, "To", "png");
-                e.PixelChanges.ToClipped = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.ToClipped, "ToClipped", "png");
-                e.PixelChanges.ToMask = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.ToMask, "ToMask", "png");
-                e.PixelChanges.Diff = _mediaServicePersister.SaveImageToMediaService(e.PixelChanges.Diff, "Diff", "png");
+                // Set images to null (for serializer)
+                SetImagesToNull(data.Result);
             }
 
             // Save html difference
             var html = data.Result.HtmlDiff;
             data.Result.HtmlDiff = _mediaServicePersister.SaveHtmlToMediaService(html, "HtmlDiff", "html");
+        }
+        //Was Private
+        internal void SetImagesToNull(PageResult result)
+        {
+            foreach (var e in result.AddedItems)
+            {
+                e.Image        = null;
+                e.ImageClipped = null;
+                e.ImageMask    = null;
+            }
 
-            //// Save scrapes data
-            //foreach (dynamic scrape in data.scrapes)
-            //{
-            //    scrape.html = _mediaServicePersister.SaveHtmlToMediaService(html, "ScrapeHtml", "html");
-            //    scrape.screenshot = _mediaServicePersister.SaveImageToMediaService(scrape.screenshot, "ScrapeScreenshot", "png");
-            //}
+            foreach (var e in result.RemovedItems)
+            {
+                e.Image        = null;
+                e.ImageClipped = null;
+                e.ImageMask    = null;
+            }
+
+            foreach (var e in result.ChangedItems.Where(e => e.PixelChanges != null))
+            {
+                e.PixelChanges.From        = null;
+                e.PixelChanges.FromClipped = null;
+                e.PixelChanges.FromMask    = null;
+                e.PixelChanges.To          = null;
+                e.PixelChanges.ToClipped   = null;
+                e.PixelChanges.ToMask      = null;
+                e.PixelChanges.Diff        = null;
+            }
+        }
+        //Was Private
+        internal void UpdateStyles(PageResult result, Image image)
+        {
+            var style = string.Format(_style, image.Width, image.Height, 0, 0);
+
+            foreach (var e in result.AddedItems)
+            {
+                e.ImageStyle        = style;
+                e.ImageClippedStyle = style;
+                e.ImageMaskStyle    = style;
+            }
+
+            foreach (var e in result.RemovedItems)
+            {
+                e.ImageStyle        = style;
+                e.ImageClippedStyle = style;
+                e.ImageMaskStyle    = style;
+            }
+
+            foreach (var e in result.ChangedItems.Where(e => e.PixelChanges != null))
+            {
+                e.PixelChanges.FromStyle        = style;
+                e.PixelChanges.FromClippedStyle = style;
+                e.PixelChanges.FromMaskStyle    = style;
+                e.PixelChanges.ToStyle          = style;
+                e.PixelChanges.ToClippedStyle   = style;
+                e.PixelChanges.ToMaskStyle      = style;
+                e.PixelChanges.DiffStyle        = style;
+            }
+        }
+        //Was Private
+        internal void UpdateStyles(PageResult result, Sprite sprite)
+        {
+            foreach (var e in result.AddedItems)
+            {
+                e.ImageStyle        = GetStyle(sprite, e.Image);
+                e.ImageClippedStyle = GetStyle(sprite, e.ImageClipped);
+                e.ImageMaskStyle    = GetStyle(sprite, e.ImageMask);
+            }
+
+            foreach (var e in result.RemovedItems)
+            {
+                e.ImageStyle        = GetStyle(sprite, e.Image);
+                e.ImageClippedStyle = GetStyle(sprite, e.ImageClipped);
+                e.ImageMaskStyle    = GetStyle(sprite, e.ImageMask);
+            }
+
+            foreach (var e in result.ChangedItems.Where(e => e.PixelChanges != null))
+            {
+                e.PixelChanges.FromStyle        = GetStyle(sprite, e.PixelChanges.From);
+                e.PixelChanges.FromClippedStyle = GetStyle(sprite, e.PixelChanges.FromClipped);
+                e.PixelChanges.FromMaskStyle    = GetStyle(sprite, e.PixelChanges.FromMask);
+                e.PixelChanges.ToStyle          = GetStyle(sprite, e.PixelChanges.To);
+                e.PixelChanges.ToClippedStyle   = GetStyle(sprite, e.PixelChanges.ToClipped);
+                e.PixelChanges.ToMaskStyle      = GetStyle(sprite, e.PixelChanges.ToMask);
+                e.PixelChanges.DiffStyle        = GetStyle(sprite, e.PixelChanges.Diff);
+            }
+        }
+        //Was Private
+        internal string GetStyle(Sprite sprite, Image image)
+        {
+            var r = sprite.MappedImages[image];
+            return string.Format(_style, r.Width, r.Height, r.X, r.Y);
+        }
+        //Was Private
+        internal Image[] GetAllImages(PageResult result)
+        {
+            var images = new List<Image>();
+
+            // Save images from added elements
+            foreach (var e in result.AddedItems)
+            {
+                images.AddRange(new [] { e.Image, e.ImageClipped, e.ImageMask });
+            }
+
+            // Save images from removed elements
+            foreach (var e in result.RemovedItems)
+            {
+                images.AddRange(new[] { e.Image, e.ImageClipped, e.ImageMask });
+            }
+
+            // Save images from changed elements
+            foreach (var e in result.ChangedItems.Where(e => e.PixelChanges != null))
+            {
+                images.AddRange(new[] { e.PixelChanges.From, e.PixelChanges.FromClipped, e.PixelChanges.FromMask, e.PixelChanges.To, e.PixelChanges.ToClipped, e.PixelChanges.ToMask, e.PixelChanges.Diff });
+            }
+
+            return images.ToArray();
+        }
+
+        public void Dispose()
+        {
+            _mediaServicePersister.Dispose();
         }
     }
 }

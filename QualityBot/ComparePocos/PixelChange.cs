@@ -1,19 +1,29 @@
 namespace QualityBot.ComparePocos
 {
+    using System.Drawing;
+
     public class PixelChange
     {
-        public string From { get; set; }
+        public Image From { get; set; }
+        public string FromStyle { get; set; }
 
-        public string FromClipped { get; set; }
+        public Image FromClipped { get; set; }
+        public string FromClippedStyle { get; set; }
 
-        public string FromMask { get; set; }
+        public Image FromMask { get; set; }
+        public string FromMaskStyle { get; set; }
 
-        public string To { get; set; }
+        public Image To { get; set; }
+        public string ToStyle { get; set; }
 
-        public string ToClipped { get; set; }
+        public Image ToClipped { get; set; }
+        public string ToClippedStyle { get; set; }
 
-        public string ToMask { get; set; }
+        public Image ToMask { get; set; }
+        public string ToMaskStyle { get; set; }
 
-        public string Diff { get; set; }
+        public Image Diff { get; set; }
+        public string DiffStyle { get; set; }
+
     }
 }

@@ -4,11 +4,9 @@
     using System.Collections.Generic;
     using System.IO;
     using Newtonsoft.Json;
-
     using QualityBot.RequestPocos;
-    using QualityBot.Util;
 
-    class RequestPersister : IPersister<Request>
+    public class RequestPersister : IPersister<Request>
     {
         private MongoDbPersister _mongoDbPersister;
 
@@ -28,9 +26,9 @@
             return request;
         }
 
-        public IEnumerable<Request> RetrieveFromMongoDb(Request data)
+        public IEnumerable<Request> RetrieveFromMongoDb(string id)
         {
-            return MongoDbPersister.LoadFromMongoDb(data);
+            return MongoDbPersister.LoadFromMongoDb<Request>(id);
         }
 
         public void SaveToDisc(string outputDir, Request data)
@@ -42,7 +40,7 @@
             var path = Path.Combine(outputDir, filename);
 
             data.Path.Value = path;
-            var json = JsonUtil.Serialize(data);
+            var json = JsonConvert.SerializeObject(data);
             File.WriteAllText(path, json);
         }
 

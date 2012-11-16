@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/MediaShared.Common.Utils" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/MediaShared.Common.Utils" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="FileType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="None" />
+      <xs:enumeration value="Image" />
+      <xs:enumeration value="Tabular" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="FileType" nillable="true" type="tns:FileType" />
+</xs:schema>

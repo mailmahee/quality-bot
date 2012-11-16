@@ -6,7 +6,7 @@ namespace QualityBot.Persistence
     {
         T RetrieveFromDisc(string file);
 
-        IEnumerable<T> RetrieveFromMongoDb(T data);
+        IEnumerable<T> RetrieveFromMongoDb(string id);
 
         void SaveToDisc(string outputDir, T data);
         

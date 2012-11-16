@@ -61,8 +61,6 @@
             Browser = browser;
         }
 
-        public string Body { get; set; }
-
         public Rectangle? BoundingRectangle
         {
             get
@@ -79,8 +77,6 @@
 
         public string BrowserVersion { get; set; }
 
-        public List<string> Cookies { get; set; }
-
         public string ExcludeJquerySelector
         {
             get
@@ -94,9 +90,15 @@
             }
         }
 
-        public Dictionary<string, string> Headers { get; set; }
-
         public ObjectId Id { get; set; }
+
+        public string IdString
+        {
+            get
+            {
+                return Id.ToString();
+            }
+        }
 
         public string IncludeJquerySelector
         {
@@ -110,8 +112,6 @@
                 _includeJquerySelector = value;
             }
         }
-
-        public string Method { get; set; }
 
         public StringAsReference Path { get; set; }
 
@@ -133,19 +133,13 @@
 
 		private void Initialize()
 		{
-			Headers = new Dictionary<string, string>();
-			Cookies = new List<string>();
             Path = new StringAsReference();
         }
 
         protected bool Equals(Request other)
         {
-            return string.Equals(Body, other.Body)
-                   && string.Equals(Browser, other.Browser)
+            return string.Equals(Browser, other.Browser)
                    && string.Equals(BrowserVersion, other.BrowserVersion)
-                   && Cookies.OrderBy(s => s).SequenceEqual(other.Cookies.OrderBy(t => t))
-                   && Headers.DictionaryEqual(other.Headers) 
-                   && string.Equals(Method, other.Method)
                    && string.Equals(Script, other.Script) 
                    && string.Equals(Url, other.Url);
         }
@@ -161,12 +155,8 @@
         {
             unchecked
             {
-                int hashCode = (Body != null ? Body.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Browser != null ? Browser.GetHashCode() : 0);
+                int hashCode = (Browser != null ? Browser.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (BrowserVersion != null ? BrowserVersion.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Cookies != null ? Cookies.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Headers != null ? Headers.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Method != null ? Method.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Script != null ? Script.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Url != null ? Url.GetHashCode() : 0);
                 return hashCode;

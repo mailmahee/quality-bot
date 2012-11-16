@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Threading.Tasks;
-using QualityBot.ComparePocos;
-using QualityBot.ScrapePocos;
-
-namespace QualityBot.ServiceLibrary
+﻿namespace QualityBot.ServiceLibrary
 {
+    using System.ServiceModel;
+
     [ServiceContract]
     public interface IQualityBotService
     {
         [OperationContract]
-        Scrape Scrape(string url, bool persist);
+        dynamic Scrape(string url, bool persist);
         [OperationContract]
-        Comparison Compare(string urlA, string urlB);
-
+        dynamic Compare(string urlA, string urlB, bool persist = true);
+        [OperationContract]
+        dynamic CompareDynamic(dynamic requestA, dynamic requestB, bool persist = true);
+        [OperationContract]
+        dynamic ScrapeDynamic(dynamic request);
+        [OperationContract]
+        dynamic CompareScrapeIds(string scrapeIdA, string scrapeIdB, bool persist);
     }
 }

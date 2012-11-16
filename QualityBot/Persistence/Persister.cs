@@ -28,48 +28,26 @@
         			_persister.SaveToDisc(OutputDir, item);
 					break;
 				default:
-					throw new Exception("Persistence Method not defined");
+					throw new ArgumentException("Persistence Method not defined");
 			}
 		}
 
 		/// <summary>
 		/// Load objects.
 		/// </summary>
-		/// <param name="item"></param>
+		/// <param name="value">The value, could be a path or MongoDB ID.</param>
 		/// <returns></returns>
-		public IEnumerable<T> Load(T item)
+		public IEnumerable<T> Load(string value)
 		{
 			switch (PersistenceMethod)
 			{
 				case PersistenceMethod.MongoDb:
-					return _persister.RetrieveFromMongoDb(item);
+                    return _persister.RetrieveFromMongoDb(value);
 				case PersistenceMethod.File:
-					return new[] { LoadFromFileSystem(item) };
+                    return new[] { _persister.RetrieveFromDisc(value) };
 				default:
-					throw new Exception("Persistence Method not defined");
+					throw new ArgumentException("Persistence Method not defined");
 			}
 		}
-
-		/// <summary>
-        /// Load from the file system.
-		/// </summary>
-		/// <param name="item"></param>
-		/// <returns></returns>
-		public T LoadFromFileSystem(T item)
-		{
-            var filename = item.Path.ToString();
-            return LoadFromFileSystem(filename);
-		}
-
-        /// <summary>
-        /// Load from the file system.
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public T LoadFromFileSystem(string fileName)
-        {
-            var data = _persister.RetrieveFromDisc(fileName);
-            return data;
-        }
 	}
 }

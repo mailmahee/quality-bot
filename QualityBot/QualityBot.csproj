@@ -36,14 +36,14 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.0\lib\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="Interop.SHDocVw">
-      <HintPath>..\packages\WatiN.2.1.0\lib\net40\Interop.SHDocVw.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+    <Reference Include="Mapper">
+      <HintPath>..\packages\Mapper\Mapper.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -59,17 +59,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.4.5.7\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.0.12054\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.Entity.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -78,28 +71,37 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
-    <Reference Include="WatiN.Core">
-      <HintPath>..\packages\WatiN.2.1.0\lib\net40\WatiN.Core.dll</HintPath>
-    </Reference>
     <Reference Include="WebDriver, Version=2.25.1.0, Culture=neutral, PublicKeyToken=1c2bd1631853048f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Selenium.WebDriver.2.25.1\lib\net40\WebDriver.dll</HintPath>
     </Reference>
     <Reference Include="Webinator, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Webinator.2.0.29\lib\Webinator.dll</HintPath>
+      <HintPath>.\Webinator.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IService.cs" />
+    <Compile Include="ScrapePocos\PageData.cs" />
+    <Compile Include="Scrapers\ElementProvider.cs" />
+    <Compile Include="Scrapers\FacadeFactory.cs" />
+    <Compile Include="Scrapers\Facades\PhantomJsFacade.cs" />
+    <Compile Include="Scrapers\Facades\WebDriverFacade.cs" />
+    <Compile Include="Scrapers\Interfaces\IBrowserFacade.cs" />
+    <Compile Include="Scrapers\Interfaces\IElementProvider.cs" />
+    <Compile Include="Scrapers\Interfaces\IWebRequestUtil.cs" />
+    <Compile Include="Scrapers\ScrapeBuilder.cs" />
+    <Compile Include="Scrapers\WebRequestUtil.cs" />
+    <None Include="phantomjs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="seleniumGridSettings.json" />
     <Compile Include="Comparer.cs" />
     <Compile Include="Enums\PersistenceMethod.cs" />
-    <Compile Include="Enums\SerializationMethod.cs" />
     <Compile Include="RequestPocos\Request.cs" />
     <Compile Include="Persistence\ComparePersister.cs" />
     <Compile Include="Persistence\IPersist.cs" />
     <Compile Include="Persistence\IPersister.cs" />
-    <Compile Include="Persistence\MediaServicePersister.cs" />
-    <Compile Include="Persistence\MongoDbPersister.cs" />
     <Compile Include="Persistence\Persister.cs" />
     <Compile Include="Persistence\PersisterFactory.cs" />
     <Compile Include="Persistence\RequestPersister.cs" />
@@ -116,93 +118,54 @@
     <Compile Include="ComparePocos\PixelChange.cs" />
     <Compile Include="ComparePocos\PixelResult.cs" />
     <Compile Include="ComparePocos\ScrapeHybrid.cs" />
-    <Compile Include="ScrapePocos\ElementInfo.cs" />
+    <Compile Include="ScrapePocos\ScrapedElement.cs" />
     <Compile Include="ScrapePocos\Scrape.cs" />
     <Compile Include="ScrapePocos\Resource.cs" />
-    <Compile Include="Scraper.cs" />
-    <Compile Include="Service References\MediaService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Service.cs" />
-    <Compile Include="Util\AppConfigUtil.cs" />
-    <Compile Include="Util\FastBitmap.cs" />
-    <Compile Include="Util\DiffMatchPatch.cs" />
-    <Compile Include="Util\ImageUtil.cs" />
-    <Compile Include="Util\Iterators.cs" />
-    <Compile Include="Util\Javascript.cs" />
-    <Compile Include="Util\JsonUtil.cs" />
-    <Compile Include="Util\RectangleUtil.cs" />
-    <Compile Include="Util\StringAsReference.cs" />
-    <Compile Include="Util\TypeExtensions.cs" />
-    <Compile Include="Util\WebRequestClient.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Util\WebRequestClientBase.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Javascript.cs" />
+    <None Include="Webinator.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
-    <None Include="Plugins\firebug-1.8.4-fx.xpi">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Plugins\firecookie-1.4-fx.xpi">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Plugins\firepath-0.9.7-fx.xpi">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Service References\MediaService\Arrays.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\MediaServices.Data.Enums.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\MediaServices.Data.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\MediaShared.Common.Utils.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\MediaShared.Data.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\Message.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\service.wsdl" />
-    <None Include="Service References\MediaService\service.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\MediaService\service1.xsd">
+    <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="chromedriver.exe">
+    <Content Include="chromedriver.exe" />
+    <EmbeddedResource Include="toomany.png" />
+    <Content Include="phantomjs.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Service References\MediaService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-    <None Include="Service References\MediaService\configuration.svcinfo" />
-    <None Include="Service References\MediaService\configuration91.svcinfo" />
+    <Content Include="scrape.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Webinator.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Webinator.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Service References\" />
+    <ProjectReference Include="..\QualityBot.Persistence\QualityBot.Persistence.csproj">
+      <Project>{71739cae-7c75-47ad-8377-d88428642b6e}</Project>
+      <Name>QualityBot.Persistence</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QualityBot.Util\QualityBot.Util.csproj">
+      <Project>{4efd5547-d225-4a6c-adc6-21367ac95b38}</Project>
+      <Name>QualityBot.Util</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\MediaService\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

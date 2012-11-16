@@ -1,25 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace QualityBot.ServiceLibrary
+﻿namespace QualityBot.ServiceLibrary
 {
     public class QualityBotService : IQualityBotService
     {
-        public ScrapePocos.Scrape Scrape(string url, bool persist)
+        public dynamic Scrape(string url, bool persist)
         {
-            var qBSvc = new QualityBot.Service();
+            var qBSvc = new Service();
 
             return qBSvc.Scrape(url, persist);
         }
 
-        public ComparePocos.Comparison Compare(string urlA, string urlB)
+        public dynamic Compare(string urlA, string urlB, bool persist)
         {
-            var qBSvc = new QualityBot.Service();
+            var qBSvc = new Service();
 
-            return qBSvc.Compare(urlA, urlB);
+            return qBSvc.Compare(urlA, urlB, persist);
+        }
+
+        public dynamic CompareDynamic(dynamic requestA, dynamic requestB, bool persist = true)
+        {
+            var qBSvc = new Service();
+
+            return qBSvc.CompareDynamic(requestA, requestB, persist);
+        }
+
+        public dynamic ScrapeDynamic(dynamic request)
+        {
+            var qBSvc = new Service();
+
+            return qBSvc.ScrapeDynamic(request);
+        }
+
+        public dynamic CompareScrapeIds(string scrapeIdA, string scrapeIdB, bool persist)
+        {
+            var qBSvc = new Service();
+
+            return qBSvc.CompareScrapeIds(scrapeIdA, scrapeIdB, persist);
         }
     }
 }
