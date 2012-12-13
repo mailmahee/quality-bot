@@ -41,26 +41,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\AutoPoco.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlAgilityPack, Version=1.4.0.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+    <Reference Include="DiffMatchPatch, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\HtmlAgilityPack.1.4.0\lib\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="Ionic.Zip">
-      <HintPath>..\packages\DotNetZip.1.9.1.8\lib\net20\Ionic.Zip.dll</HintPath>
-    </Reference>
-    <Reference Include="Mapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Mapper\Mapper.dll</HintPath>
+      <HintPath>..\packages\DiffMatchPatch\DiffMatchPatch.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.5\lib\net35\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver">
       <HintPath>..\packages\mongocsharpdriver.1.5\lib\net35\MongoDB.Driver.dll</HintPath>
-    </Reference>
-    <Reference Include="Moq, Version=4.0.10827.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -76,48 +65,46 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.mocks, Version=2.5.10.11092, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.5.10.11092\lib\nunit.mocks.dll</HintPath>
-    </Reference>
-    <Reference Include="pnunit.framework">
-      <HintPath>..\packages\NUnit.2.5.10.11092\lib\pnunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
     <Reference Include="WebDriver, Version=2.25.1.0, Culture=neutral, PublicKeyToken=1c2bd1631853048f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Selenium.WebDriver.2.25.1\lib\net40\WebDriver.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DaemonTests\WorkerTests.cs" />
-    <Compile Include="MediaServiceTests\MediaServiceAliveTests.cs" />
+    <Compile Include="Tests\QualityBotDaemonTests\WorkerTests.cs" />
+    <Compile Include="Tests\QualityBotTests\CompareTests\ConflictResolverTests.cs" />
+    <Compile Include="Tests\QualityBotTests\CompareTests\ElementMapperSimilarTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\ScrapePersisterTests.cs" />
+    <Compile Include="Tests\QualityBotTests\RequestPocosTests\RequestTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\FacadesTests\PhantomJsFacadeTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\FacadesTests\WebDriverFacadeTests.cs" />
+    <Compile Include="Tests\MediaServiceTests\MediaServiceAliveTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Base\BaseTest.cs" />
-    <Compile Include="Persistence\PersisterTests.cs" />
-    <Compile Include="Tests\ComparePersisterTests.cs" />
-    <Compile Include="Tests\ComparerTests.cs" />
-    <Compile Include="Tests\CssChangeTests.cs" />
-    <Compile Include="Tests\DiffMatchPatchTest.cs" />
-    <Compile Include="Tests\ElementChangeResultTests.cs" />
-    <Compile Include="Tests\IntegrationTests.cs" />
-    <Compile Include="Tests\PersisterTests.cs" />
-    <Compile Include="Tests\QBFake.cs" />
-    <Compile Include="Tests\QBFakeTests.cs" />
-    <Compile Include="Tests\RandomatorTests.cs" />
-    <Compile Include="Tests\RequestPersisterTests.cs" />
-    <Compile Include="Tests\ScraperTests.cs" />
-    <Compile Include="Tests\ServiceTests.cs" />
-    <Compile Include="DaemonTests\FakeJobs.cs" />
-    <Compile Include="Tests\SpriteUtilTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\PersisterTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\ComparePersisterTests.cs" />
+    <Compile Include="Tests\QualityBotTests\CompareTests\ElementMapperTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ComparePocosTests\CssChangeTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\ElementProviderTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\ScrapeBuilderTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\WebRequestUtilTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ComparePocosTests\ElementChangeResultTests.cs" />
+    <Compile Include="Tests\QualityBotTests\ScrapersTests\FacadeFactoryTests.cs" />
+    <Compile Include="Tests\QualityBotIntegrationTests\IntegrationTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\PersistTests.cs" />
+    <Compile Include="Tests\QualityBotFake\QBFake.cs" />
+    <Compile Include="Tests\QualityBotFake\QBFakeTests.cs" />
+    <Compile Include="Tests\QualityBotUtilTests\RandomatorTests.cs" />
+    <Compile Include="Tests\QualityBotUtilTests\RectangleUtilTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\RequestPersisterTests.cs" />
+    <Compile Include="Tests\QualityBotIntegrationTests\ServiceTests.cs" />
+    <Compile Include="Tests\QualityBotDaemonTests\FakeJobs.cs" />
+    <Compile Include="Tests\QualityBotUtilTests\SpriteUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
@@ -126,7 +113,9 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QualityBot.Persistence\QualityBot.Persistence.csproj">
@@ -149,11 +138,19 @@
   <ItemGroup>
     <Content Include="AutoPoco.dll" />
     <Content Include="AutoPoco.pdb" />
+    <EmbeddedResource Include="Tests\TestData\FakeResources.txt" />
+    <EmbeddedResource Include="Tests\TestData\FakeElementJSON.txt" />
+    <EmbeddedResource Include="Tests\TestData\FakeHTML.txt" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Tests\QualityBotPersistenceTests\" />
+    <Folder Include="Tests\QualityBotServiceHostTests\" />
+    <Folder Include="Tests\QualityBotServiceLibraryTests\" />
+    <Folder Include="Tests\QualityBotTests\ScrapePocosTests\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

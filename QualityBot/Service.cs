@@ -4,6 +4,8 @@
     using System.Drawing;
     using System.Linq;
     using OpenQA.Selenium;
+
+    using QualityBot.Compare;
     using QualityBot.ComparePocos;
     using QualityBot.Persistence;
     using QualityBot.RequestPocos;
@@ -22,6 +24,16 @@
         {
             _comparePersister = PersisterFactory.CreateComparePersisterInstance();
             _scrapePersister = PersisterFactory.CreateScrapePersisterInstance();
+
+            var elementProvider = new ElementProvider();
+            var webRequestUtil = new WebRequestUtil();
+            _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
+        }
+
+        public Service(string outputDir)
+        {
+            _comparePersister = PersisterFactory.CreateComparePersisterInstance(outputDir);
+            _scrapePersister = PersisterFactory.CreateScrapePersisterInstance(outputDir);
 
             var elementProvider = new ElementProvider();
             var webRequestUtil = new WebRequestUtil();
@@ -162,7 +174,7 @@
             Scrape scrape;
             using (var facade = FacadeFactory.CreateFacade(webDriver, request))
             {
-                var data = facade.ScrapeData();
+                var data = facade.ScrapeData(false);
                 scrape = _scrapeBuilder.BuildScrape(request, data);
             }
 

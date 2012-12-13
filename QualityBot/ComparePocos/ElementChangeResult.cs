@@ -1,8 +1,9 @@
 namespace QualityBot.ComparePocos
 {
+    using System.Drawing;
+
     public class ElementChangeResult
     {
-
         public CssChange CssChanges { get; set; }
 
         public string HtmlChanges { get; set; }
@@ -22,6 +23,8 @@ namespace QualityBot.ComparePocos
         public decimal LocationPercentageChange { get; set; }
 
         public decimal PixelPercentageChange { get; set; }
+
+        public Rectangle LocationOnScreenshot { get; set; }
 
         protected bool Equals(ElementChangeResult other)
         {

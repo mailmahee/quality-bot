@@ -5,6 +5,8 @@
     using System.Drawing;
     using System.Drawing.Imaging;
     using System.Linq;
+    using System.Text.RegularExpressions;
+
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers.Interfaces;
@@ -68,6 +70,14 @@
             return page;
         }
 
+        private Regex reg;
+
+        public string CleanHtml(string html)
+        {
+            reg = reg ?? new Regex(@"diffengineindexer=""[0-9]+""");
+            return reg.Replace(html, string.Empty);
+        }
+
         private Scrape AssembleScrape(Request request, PageData pageData, Resource[] pageResources)
         {
             var screenshotBase64 = ImageUtil.ImageToBase64(pageData.Screenshot, ImageFormat.Png);
@@ -85,7 +95,7 @@
                 ViewportSize          = pageData.Size,
                 Platform              = pageData.Platform.ToLower(),
                 Resources             = pageResources,
-                Html                  = pageData.Html,
+                Html                  = CleanHtml(pageData.Html),
                 Screenshot            = screenshotBase64,
                 Cookies               = pageData.Cookies.ToList()
             };

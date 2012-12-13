@@ -10,6 +10,18 @@ namespace QualityBot.Util
     /// </summary>
     public static class TypeExtensions
     {
+        public static decimal GetPercentageOfTotal(this decimal total, decimal value)
+        {
+            var percentage = total > 0 ? (value / total) * 100 : 0M;
+
+            return percentage;
+        }
+
+        public static decimal GetPercentageOfTotal(this int total, decimal value)
+        {
+            return GetPercentageOfTotal((decimal)total, value);
+        }
+
         /// <summary>
         /// Returns true if this rectangle encompasses r2.
         /// </summary>
@@ -74,7 +86,7 @@ namespace QualityBot.Util
         /// </param>
         public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
         {
-            foreach (var item in items)
+            foreach (var item in items.ToArray())
             {
                 action(item);
             }

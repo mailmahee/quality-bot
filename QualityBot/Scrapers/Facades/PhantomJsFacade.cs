@@ -88,10 +88,10 @@ namespace QualityBot.Scrapers.Facades
 
             var cookies = (from c in jCookies
                            where c.ContainsKey("name")
-                           let name = c["name"].ToString()
-                           let value = c.ContainsKey("value") ? c["value"].ToString() : String.Empty
-                           let domain = c.ContainsKey("domain") ? c["domain"].ToString() : String.Empty
-                           let path = c.ContainsKey("path") ? c["path"].ToString() : String.Empty
+                           let name    = c["name"].ToString()
+                           let value   = c.ContainsKey("value")   ? c["value"].ToString()                : String.Empty
+                           let domain  = c.ContainsKey("domain")  ? c["domain"].ToString()               : String.Empty
+                           let path    = c.ContainsKey("path")    ? c["path"].ToString()                 : String.Empty
                            let expires = c.ContainsKey("expires") ? DateTime.Parse((string)c["expires"]) : (DateTime?)null
                            select string.Format("{0}={1}; expires={2}; path={3}; domain={4}", name, value, expires, path, domain)).ToArray();
 
@@ -124,7 +124,7 @@ namespace QualityBot.Scrapers.Facades
             return size;
         }
 
-        public PageData ScrapeData()
+        public PageData ScrapeData(bool useCurrent = true)
         {
             RunUserScript();
 

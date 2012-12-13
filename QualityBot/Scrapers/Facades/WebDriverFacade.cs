@@ -5,9 +5,7 @@ namespace QualityBot.Scrapers.Facades
     using System.Collections.ObjectModel;
     using System.Drawing;
     using System.Linq;
-
     using OpenQA.Selenium;
-
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers.Interfaces;
@@ -25,12 +23,12 @@ namespace QualityBot.Scrapers.Facades
 
         private ReadOnlyCollection<object> _browserInfo;
 
-        public WebDriverFacade(IWebDriver web, Request request)
+        public WebDriverFacade(IWebDriver web, Request request, ITakesScreenshot ss = null, IJavaScriptExecutor js = null)
         {
             _request = request;
             _web     = web;
-            _ss      = (ITakesScreenshot)web;
-            _js      = (IJavaScriptExecutor)web;
+            _ss      = ss ?? (ITakesScreenshot)web;
+            _js      = js ?? (IJavaScriptExecutor)web;
 
             web.Manage().Timeouts().SetScriptTimeout(new TimeSpan(0, 5, 0));
         }
@@ -150,11 +148,15 @@ namespace QualityBot.Scrapers.Facades
             return size;
         }
 
-        public PageData ScrapeData()
+        public PageData ScrapeData(bool useCurrent = true)
         {
             // Order that these are done in is crucial, don't change the order
-            SetUrl();
-            SetViewportSize();
+            if (useCurrent)
+            {
+                SetUrl();
+                SetViewportSize();
+            }
+
             InjectJavascriptHelpers();
             RunUserScript();
 

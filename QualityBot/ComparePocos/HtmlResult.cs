@@ -1,15 +1,8 @@
 namespace QualityBot.ComparePocos
 {
-    using System.Collections.Generic;
-
     public class HtmlResult
     {
-        public HtmlResult()
-        {
-            Images = new List<string>();
-        }
-
-        public List<string> Images { get; set; }
+        public string[] Images { get; set; }
 
         public decimal PercentChanged { get; set; }
 

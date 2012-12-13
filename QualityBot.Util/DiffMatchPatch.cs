@@ -19,7 +19,7 @@
  * http://code.google.com/p/google-diff-match-patch/
  */
 
-namespace QualityBot.Util
+namespace Diff
 {
     using System;
     using System.Collections.Generic;

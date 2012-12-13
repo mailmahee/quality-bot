@@ -5,18 +5,11 @@ namespace QualityBot.ComparePocos
 
     public class PageResult
     {
-        public PageResult()
-        {
-            ChangedItems = new List<ElementChangeResult>();
-            AddedItems = new List<ElementAddRemoveResult>();
-            RemovedItems = new List<ElementAddRemoveResult>();
-        }
+        public ElementChangeResult[] ChangedItems { get; set; }
 
-        public List<ElementChangeResult> ChangedItems { get; set; }
+        public ElementAddRemoveResult[] AddedItems { get; set; }
 
-        public List<ElementAddRemoveResult> AddedItems { get; set; }
-
-        public List<ElementAddRemoveResult> RemovedItems { get; set; }
+        public ElementAddRemoveResult[] RemovedItems { get; set; }
 
         public int UnchangedItems { get; set; }
 

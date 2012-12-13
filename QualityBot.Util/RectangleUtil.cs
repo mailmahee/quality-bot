@@ -54,9 +54,9 @@
         /// <param name="r1">The first rectangle.</param>
         /// <param name="r2">The second rectangle.</param>
         /// <returns>A floating point value.</returns>
-        public static double DistanceBetweenRectangles(Rectangle r1, Rectangle r2)
+        public static decimal DistanceBetweenRectangles(Rectangle r1, Rectangle r2)
         {
-            return Math.Sqrt(Math.Pow(Math.Abs(r1.X - r2.X), 2) + Math.Pow(Math.Abs(r1.Y - r2.Y), 2));
+            return (decimal)Math.Sqrt(Math.Pow(Math.Abs(r1.X - r2.X), 2) + Math.Pow(Math.Abs(r1.Y - r2.Y), 2));
         }
 
         /// <summary>

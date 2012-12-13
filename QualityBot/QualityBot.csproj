@@ -39,6 +39,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DiffMatchPatch">
+      <HintPath>..\packages\DiffMatchPatch\DiffMatchPatch.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\packages\HtmlAgilityPack.1.4.0\lib\HtmlAgilityPack.dll</HintPath>
     </Reference>
@@ -81,6 +84,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compare\Comparer.cs" />
+    <Compile Include="Compare\ConflictResolver.cs" />
+    <Compile Include="Compare\ElementMapper.cs" />
+    <Compile Include="Compare\ElementMatch.cs" />
     <Compile Include="IService.cs" />
     <Compile Include="ScrapePocos\PageData.cs" />
     <Compile Include="Scrapers\ElementProvider.cs" />
@@ -96,7 +103,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <EmbeddedResource Include="seleniumGridSettings.json" />
-    <Compile Include="Comparer.cs" />
     <Compile Include="Enums\PersistenceMethod.cs" />
     <Compile Include="RequestPocos\Request.cs" />
     <Compile Include="Persistence\ComparePersister.cs" />

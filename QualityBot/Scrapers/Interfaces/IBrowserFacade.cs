@@ -6,6 +6,6 @@ namespace QualityBot.Scrapers.Interfaces
 
     public interface IBrowserFacade : IDisposable
     {
-        PageData ScrapeData();
+        PageData ScrapeData(bool useCurrent = true);
     }
 }

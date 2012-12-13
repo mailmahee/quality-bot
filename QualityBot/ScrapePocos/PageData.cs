@@ -1,7 +1,6 @@
 namespace QualityBot.ScrapePocos
 {
     using System.Collections.Generic;
-    using System.Collections.ObjectModel;
     using System.Drawing;
 
     public class PageData

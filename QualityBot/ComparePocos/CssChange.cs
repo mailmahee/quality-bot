@@ -6,7 +6,7 @@ namespace QualityBot.ComparePocos
 
     public class CssChange
     {
-        public List<CssChangeDetail> Changed { get; set; }
+        public IEnumerable<CssChangeDetail> Changed { get; set; }
 
         public Dictionary<string, string> Added { get; set; }
 
