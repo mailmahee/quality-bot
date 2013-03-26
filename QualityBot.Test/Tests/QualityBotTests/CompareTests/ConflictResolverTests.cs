@@ -13,7 +13,7 @@
 
         private ConflictResolver<Element> _conflictResolver = new ConflictResolver<Element>();
 
-        [Test]
+        [Test, Category("Unit")]
         public void ConflictResolvesToNull()
         {
             // Arrange
@@ -30,7 +30,7 @@
             Assert.IsTrue(seriesA.Where(e => e.Value == 2).All(e => e.Match == null));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void ConflictResolvesToNextMatch()
         {
             // Arrange

@@ -2,15 +2,24 @@
 {
     using System;
     using System.Drawing;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
+
     using OpenQA.Selenium;
 
     using QualityBot.Compare;
     using QualityBot.ComparePocos;
+    using QualityBot.Enums;
     using QualityBot.Persistence;
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers;
+    using QualityBot.Util.Impls;
+
+    using Webinator.Impls;
 
     public class Service : IService
     {
@@ -26,7 +35,7 @@
             _scrapePersister = PersisterFactory.CreateScrapePersisterInstance();
 
             var elementProvider = new ElementProvider();
-            var webRequestUtil = new WebRequestUtil();
+            var webRequestUtil = new WebHeadClientImpl();
             _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
         }
 
@@ -36,7 +45,7 @@
             _scrapePersister = PersisterFactory.CreateScrapePersisterInstance(outputDir);
 
             var elementProvider = new ElementProvider();
-            var webRequestUtil = new WebRequestUtil();
+            var webRequestUtil = new WebHeadClientImpl();
             _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
         }
 
@@ -49,6 +58,24 @@
             var scrapeB = DoScrape(requestB);
 
             // Pass Scrape to Comparison
+            var comparer = new Comparer();
+            var comparison = comparer.Compare(scrapeA, scrapeB);
+
+            // Persist Scrapes
+            SaveScrapes(persist, scrapeA, scrapeB);
+
+            // Persist Comparison Obj
+            SaveComparison(persist, comparison);
+
+            return new[] { comparison };
+        }
+
+        public Comparison[] Compare(Request requestA, Request requestB, bool persist = true)
+        {
+            var scrapeA = DoScrape(requestA);
+            var scrapeB = DoScrape(requestB);
+
+            // Pass Scrapes to Comparison
             var comparer = new Comparer();
             var comparison = comparer.Compare(scrapeA, scrapeB);
 
@@ -189,8 +216,18 @@
                 var data = facade.ScrapeData();
                 scrape = _scrapeBuilder.BuildScrape(request, data);
             }
-
+            
+            //SerializeData(scrape);
+            
             return scrape;
+        }
+
+        private void SerializeData(Scrape data)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(@"C:\testme\FakeAncestryStageScrape.bin", FileMode.Create, FileAccess.Write, FileShare.None);
+            formatter.Serialize(stream, data);
+            stream.Close();
         }
 
         private Rectangle? GetRectangle(string rectangle)

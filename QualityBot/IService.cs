@@ -9,6 +9,8 @@ namespace QualityBot
     {
         Comparison[] Compare(string urlA, string urlB, bool persist = true);
 
+        Comparison[] Compare(Request requestA, Request requestB, bool persist = true);
+
         Comparison[] CompareDynamic(dynamic requestA, dynamic requestB, bool persist = true);
 
         Comparison[] CompareScrapeIds(string scrapeIdA, string scrapeIdB, bool persist);

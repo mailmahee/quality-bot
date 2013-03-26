@@ -1,7 +1,8 @@
 namespace QualityBot.ComparePocos
 {
+    using System;
     using System.Drawing;
-
+    [Serializable]
     public class PixelChange
     {
         public Image From { get; set; }

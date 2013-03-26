@@ -1,7 +1,6 @@
 ﻿namespace QualityBot.Test.Tests.QualityBotTests.PersistenceTests
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using NUnit.Framework;
     using QualityBot.Persistence;
@@ -12,12 +11,14 @@
     class ScrapePersisterTests
     {
         readonly ScrapePersister _sp = new ScrapePersister();
-        private const string _path = @"C:\Test\";
+        private string _path = @"Test";
         private Scrape _scrape;
-
+        
         [TestFixtureSetUp]
         public void Setup()
         {
+            _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _path);
+            Directory.CreateDirectory(_path);
             _scrape = new QBFake().FakeScrape(new FakeScrapeParams());
         }
 
@@ -38,11 +39,11 @@
                 } while (File.Exists(file));
             }
 
-            Directory.Delete(_path);
+            Directory.Delete(_path, true);
         }
-        
 
-        [Test]
+
+        [Test, Category("Unit")]
         public void VerifyRetrieveFromDisc()
         {
             _sp.SaveToDisc(_path, _scrape);
@@ -58,7 +59,7 @@
             Assert.IsTrue(result != null);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifySaveToDisc()
         {
 

@@ -113,7 +113,7 @@ namespace QualityBot.Scrapers.Facades
                 resources = JsonConvert.DeserializeObject<string[]>(_resources);
             }
 
-            return resources;
+            return resources.NonNull(r => r).Where(r => !string.IsNullOrWhiteSpace(r));
         }
 
         private Size GetViewportSize()
@@ -222,7 +222,7 @@ namespace QualityBot.Scrapers.Facades
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                 };
-
+                
                 var p = Process.Start(pInfo);
                 p.BeginOutputReadLine();
                 p.WaitForExit();

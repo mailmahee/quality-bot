@@ -58,12 +58,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\ImsLevel.cs" />
     <Compile Include="FastBitmap.cs" />
     <Compile Include="ImageUtil.cs" />
+    <Compile Include="Impls\WebUploadClientImpl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Impls\WebHeadClientImpl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Ims.cs" />
+    <Compile Include="Interfaces\IWebUploadClient.cs" />
+    <Compile Include="Interfaces\IWebHeadClient.cs" />
     <Compile Include="Iterators.cs" />
+    <Compile Include="Javascript.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Randomator.cs" />
     <Compile Include="RectangleUtil.cs" />
+    <Compile Include="Resource.cs" />
     <Compile Include="SettingsUtil.cs" />
     <Compile Include="SpriteUtil.cs" />
     <Compile Include="StringAsReference.cs" />

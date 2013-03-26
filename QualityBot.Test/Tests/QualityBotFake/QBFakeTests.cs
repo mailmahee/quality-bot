@@ -13,7 +13,7 @@
     {
         private QBFake fakeTest = new QBFake();
 
-        [Test]
+//        [Test]
         public void testFakeRequestDefault()
         {
             //Arrange
@@ -26,7 +26,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakeRequestUrl()
         {
             //Arrange
@@ -38,7 +38,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakeRequestUrlNBrowser()
         {
             //Arrange
@@ -53,7 +53,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakeRequestUrlNBrowserNVersion()
         {
             //Arrange
@@ -69,7 +69,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakeRequestUrlNBrowserNVersionNViewport()
         {
             //Arrange
@@ -86,7 +86,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakeRequestUrlNBrowserNViewport()
         {
             //Arrange
@@ -102,7 +102,7 @@
             Assert.IsTrue(expectedRequest.Equals(actualRequest));
         }
 
-        [Test]
+//        [Test]
         public void testFakes()
         {
             const string theId = "555b77b99b111d2aa4b33333";
@@ -111,7 +111,7 @@
             Assert.IsTrue(theId == faked.IdString.Value && rect == faked.BoundingRectangle);
         }
 
-        [Test]
+//        [Test]
         public void testFakeParams()
         {
             const string theId = "555b77b99b111d2aa4b33333";
@@ -120,7 +120,7 @@
             Assert.IsTrue(theId == faked.Id && rect == faked.Bounding);
         }
 
-        [Test]
+//        [Test]
         public void testMultipleScrapes()
         {
             FakeScrapeParams[] para =
@@ -132,7 +132,7 @@
             Assert.IsTrue(scrapes.Length > 1 && scrapes[0].Id.ToString() == "505b74b57b350d1ac4b55993" && scrapes[1].Id.ToString() == "555b77b99b111d2aa4b33333");
         }
 
-        [Test]
+//        [Test]
         public void testCompareFakeScrapes()
         {
             //Arrange
@@ -146,7 +146,7 @@
             Assert.IsTrue(compared.Result.Html.PercentChanged == 0);
         }
 
-        [Test]
+//        [Test]
         public void testFakeComparison()
         {
             var compared = fakeTest.FakeComparison(new FakeComparisonParams());

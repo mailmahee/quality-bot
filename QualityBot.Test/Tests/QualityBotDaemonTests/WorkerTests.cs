@@ -13,7 +13,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
     [TestFixture]
     public class WorkerTests
     {
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void WorkerSleepsIfNoJobsFound()
         {
             // Arrange
@@ -32,7 +32,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
             Assert.That(sw.ElapsedMilliseconds, Is.AtLeast(950));
         }
 
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void WorkerSleepsUntilJobFound()
         {
             // Arrange
@@ -61,7 +61,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
             Assert.AreEqual("C", job.Status);
         }
 
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void DoJobSuccess()
         {
             // Arrange
@@ -83,7 +83,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
             db.Received(1).UpdateJob(Arg.Any<Job>());
         }
 
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void DoJobError()
         {
             // Arrange
@@ -104,7 +104,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
             db.Received(1).UpdateJob(Arg.Any<Job>());
         }
 
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void GetJobReturnsPendingJob()
         {
             // Arrange
@@ -118,7 +118,7 @@ namespace QualityBot.Test.Tests.QualityBotDaemonTests
             Assert.IsNotNull(job);
         }
 
-        [Test, Category("Isolated")]
+        [Test, Category("Unit")]
         public void GetJobReturnsNull()
         {
             // Arrange

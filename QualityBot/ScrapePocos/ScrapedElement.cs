@@ -1,8 +1,10 @@
 namespace QualityBot.ScrapePocos
 {
+    using System;
     using System.Collections.Generic;
     using System.Drawing;
 
+    [Serializable]
     public class ScrapedElement
     {
         public string Html { get; set; }

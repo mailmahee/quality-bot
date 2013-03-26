@@ -34,7 +34,7 @@
             _eProvider = new ElementProvider();
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyElements()
         {
             //Arrange

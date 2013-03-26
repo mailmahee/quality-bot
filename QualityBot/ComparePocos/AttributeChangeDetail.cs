@@ -1,5 +1,8 @@
 ﻿namespace QualityBot.ComparePocos
 {
+    using System;
+
+    [Serializable]
     class AttributeChangeDetail
     {
         public string Key { get; set; }

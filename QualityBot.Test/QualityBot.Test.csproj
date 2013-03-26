@@ -45,6 +45,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\DiffMatchPatch\DiffMatchPatch.dll</HintPath>
     </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.4.0.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\QualityBot\bin\Release\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\packages\mongocsharpdriver.1.5\lib\net35\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -70,6 +74,9 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml" />
     <Reference Include="WebDriver, Version=2.25.1.0, Culture=neutral, PublicKeyToken=1c2bd1631853048f, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Selenium.WebDriver.2.25.1\lib\net40\WebDriver.dll</HintPath>
@@ -77,8 +84,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Tests\QualityBotDaemonTests\WorkerTests.cs" />
+    <Compile Include="Tests\QualityBotTests\CompareTests\ComparerTests.cs" />
     <Compile Include="Tests\QualityBotTests\CompareTests\ConflictResolverTests.cs" />
     <Compile Include="Tests\QualityBotTests\CompareTests\ElementMapperSimilarTests.cs" />
+    <Compile Include="Tests\QualityBotTests\PersistenceTests\PersisterFactoryTests.cs" />
     <Compile Include="Tests\QualityBotTests\PersistenceTests\ScrapePersisterTests.cs" />
     <Compile Include="Tests\QualityBotTests\RequestPocosTests\RequestTests.cs" />
     <Compile Include="Tests\QualityBotTests\ScrapersTests\FacadesTests\PhantomJsFacadeTests.cs" />
@@ -89,11 +98,9 @@
     <Compile Include="Tests\QualityBotTests\PersistenceTests\PersisterTests.cs" />
     <Compile Include="Tests\QualityBotTests\PersistenceTests\ComparePersisterTests.cs" />
     <Compile Include="Tests\QualityBotTests\CompareTests\ElementMapperTests.cs" />
-    <Compile Include="Tests\QualityBotTests\ComparePocosTests\CssChangeTests.cs" />
     <Compile Include="Tests\QualityBotTests\ScrapersTests\ElementProviderTests.cs" />
     <Compile Include="Tests\QualityBotTests\ScrapersTests\ScrapeBuilderTests.cs" />
     <Compile Include="Tests\QualityBotTests\ScrapersTests\WebRequestUtilTests.cs" />
-    <Compile Include="Tests\QualityBotTests\ComparePocosTests\ElementChangeResultTests.cs" />
     <Compile Include="Tests\QualityBotTests\ScrapersTests\FacadeFactoryTests.cs" />
     <Compile Include="Tests\QualityBotIntegrationTests\IntegrationTests.cs" />
     <Compile Include="Tests\QualityBotTests\PersistenceTests\PersistTests.cs" />
@@ -116,6 +123,13 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Tests\TestData\ComparisonIsTooMany.bin" />
+    <EmbeddedResource Include="Tests\TestData\ComparisonNotTooMany.bin" />
+    <EmbeddedResource Include="Tests\TestData\FakePageResult.bin" />
+    <EmbeddedResource Include="Tests\TestData\FakeZomboScrape.bin" />
+    <EmbeddedResource Include="Tests\TestData\FakePageData.bin" />
+    <EmbeddedResource Include="Tests\TestData\FakeAncestryDevScrape.bin" />
+    <EmbeddedResource Include="Tests\TestData\FakeAncestryStageScrape.bin" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\QualityBot.Persistence\QualityBot.Persistence.csproj">
@@ -138,6 +152,7 @@
   <ItemGroup>
     <Content Include="AutoPoco.dll" />
     <Content Include="AutoPoco.pdb" />
+    <EmbeddedResource Include="Tests\TestData\DummyImage.jpg" />
     <EmbeddedResource Include="Tests\TestData\FakeResources.txt" />
     <EmbeddedResource Include="Tests\TestData\FakeElementJSON.txt" />
     <EmbeddedResource Include="Tests\TestData\FakeHTML.txt" />
@@ -149,6 +164,7 @@
     <Folder Include="Tests\QualityBotPersistenceTests\" />
     <Folder Include="Tests\QualityBotServiceHostTests\" />
     <Folder Include="Tests\QualityBotServiceLibraryTests\" />
+    <Folder Include="Tests\QualityBotTests\ComparePocosTests\" />
     <Folder Include="Tests\QualityBotTests\ScrapePocosTests\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

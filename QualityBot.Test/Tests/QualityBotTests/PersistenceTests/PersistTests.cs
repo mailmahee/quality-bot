@@ -12,7 +12,7 @@
     class PersistTests :BaseTest
     {
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifySaveException()
         {
             //Arrange
@@ -24,7 +24,7 @@
             Assert.Throws<ArgumentException>(() => persister.Save(persistable));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifySaveMongoDb()
         {
             //Arrange
@@ -36,7 +36,7 @@
             Assert.DoesNotThrow(() => persister.Save(persistable));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifySaveFile()
         {
             //Arrange
@@ -48,7 +48,7 @@
             Assert.DoesNotThrow(() => persister.Save(persistable));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoadException()
         {
             //Arrange
@@ -60,7 +60,7 @@
             Assert.Throws<ArgumentException>(() => persister.Load("-"));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoadMongoDb()
         {
             //Arrange
@@ -72,7 +72,7 @@
             Assert.DoesNotThrow(() => persister.Load(persistable.Id.ToString()));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoadFile()
         {
             //Arrange

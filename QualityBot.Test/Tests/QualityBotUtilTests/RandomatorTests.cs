@@ -10,7 +10,7 @@
     [TestFixture]
     class RandomatorTests : BaseTest
     {
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyRandomEnumValue()
         {
             //Arrange
@@ -23,7 +23,7 @@
             Assert.IsTrue(result.GetType() == theEnum.GetType());
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyRandomNumber()
         {
             //Arrange
@@ -38,7 +38,7 @@
 
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyRandomDate()
         {
             //Arrange
@@ -52,7 +52,7 @@
             Assert.IsTrue(result.CompareTo(earliest) > 0 && result.CompareTo(latest) < 0);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyRandomUnicodeString()
         {
             //Arrange
@@ -65,7 +65,7 @@
             Assert.IsTrue(result.IndexOfAny(unicodeCharacters) != -1);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyRandomAlphaNumeric()
         {
             //Arrange
@@ -83,7 +83,7 @@
             Assert.IsTrue( ( result.IndexOfAny(alphabeticCharacters) != -1) && ( result.IndexOfAny(numericCharacters) != -1 ) );
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoremIpsumWords()
         {
             //Arrange
@@ -145,7 +145,7 @@
             Assert.IsTrue(loremIpsum.Any(result.Contains));
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoremIpsumLengthSingleWord()
         {
             //Arrange
@@ -158,7 +158,7 @@
             Assert.IsTrue(result.Length == length);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoremIpsumLengthMultiWord()
         {
             //Arrange
@@ -171,7 +171,7 @@
             Assert.IsTrue(result.Length == length);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyGetRandomColor()
         {
             //Arrange
@@ -184,7 +184,7 @@
             Assert.IsTrue(firstColor != secondColor);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoremIpsumTooLong()
         {
             //Arrange
@@ -198,7 +198,7 @@
             Assert.IsTrue(result.Length == length);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyLoremIpsumLengthZeroToTwenty()
         {
             //Arrange
@@ -219,7 +219,7 @@
 
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyReplaceFirstOccurence()
         {
             var testItem = "TodayTomorrow Yesterday";
@@ -234,27 +234,24 @@
             Assert.IsTrue(result.Contains(newItem)); 
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyReplaceFirstOccurenceNullOriginal()
         {
             var result = Randomator.ReplaceFirstOccurrence(null, "", "");
-            Console.WriteLine(result);
             Assert.IsTrue(result == "");
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyReplaceFirstOccurenceNullOldItem()
         {
             var result = "a".ReplaceFirstOccurrence(null, "");
-            Console.WriteLine(result);
             Assert.IsTrue(result == "a");
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyReplaceFirstOccurenceNullNewItem()
         {
             var result = "a".ReplaceFirstOccurrence("b", null);
-            Console.WriteLine(result);
             Assert.IsTrue(result == "a");
         }
     }

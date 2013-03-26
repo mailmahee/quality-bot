@@ -10,7 +10,7 @@
     //[TestFixture]
     class ServiceTests : BaseTest
     {
-        //[Test]
+        //[Test, Category("Integration")]
         public void VerifyScrapeWithWebDriver()
         {
             //Arrange
@@ -29,7 +29,7 @@
                 Assert.IsTrue(result.Browser == request.Browser);
             });
         }
-        //[Test]
+        //[Test, Category("Integration")]
         public void VerifyScrapeWithPhantomJS()
         {
             //Arrange

@@ -1,9 +1,13 @@
 ﻿namespace QualityBot.Test.Tests.QualityBotTests.PersistenceTests
 {
+    using System;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
     using NUnit.Framework;
     using QualityBot.Test.Tests.Base;
-    using NSubstitute;
     using QualityBot.ComparePocos;
     using QualityBot.Persistence;
 
@@ -11,71 +15,55 @@
     class ComparePersisterTests : BaseTest
     {
         readonly ComparePersister _cp = new ComparePersister();
-        private const string _path = @"C:\Test\";
-        private Comparison _comparison;
+        private string _path = @"Test";
 
-        [TestFixtureSetUp]
+        internal static Stream GetResourceStream(string resourceName)
+        {
+            var thisExe = Assembly.GetExecutingAssembly();
+            var file = thisExe.GetManifestResourceStream(resourceName);
+            return file;
+        }
+
+        [SetUp]
         public void Setup()
         {
-            _comparison = new Comparison();
+            _path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _path);
+            Directory.CreateDirectory(_path);
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void Cleanup()
         {
-            foreach (var file in Directory.GetFiles(_path))
-            {
-                File.Delete(file);
-            }
-
-            Directory.Delete(_path);
+            Directory.Delete(_path, true);
         }
 
-        [Test]
-        public void VerifyRetrieveFromDisc()
+        [Test, Category("Unit")]
+        public void VerifyNotTooManyDiffs()
         {
+            IFormatter formatter = new BinaryFormatter();
+            var obj = (Comparison)formatter.Deserialize(GetResourceStream("QualityBot.Test.Tests.TestData.ComparisonNotTooMany.bin"));
             //Arrange
-            _cp.SaveToDisc(_path, _comparison);
-
+            _cp.SaveToDisc(_path, obj);
+            Assert.IsTrue(Directory.GetFiles(_path).Length > 0);
             //Act
-            var result = _cp.RetrieveFromDisc(Directory.GetFiles(_path)[0]);
-
+            var json = Directory.GetFiles(_path).First(file => file.Contains(".json"));
+            var result = _cp.RetrieveFromDisc(json);
             //Assert
             Assert.IsTrue(result != null);
         }
-
-        [Test]
-        public void VerifySaveToDisc()
+        [Test, Category("Unit")]
+        public void VerifyTooManyDiffs()
         {
-            //Arrange & Act
-            _cp.SaveToDisc(_path, _comparison);
-
-            //Assert
+            IFormatter formatter = new BinaryFormatter();
+            var obj = (Comparison)formatter.Deserialize(GetResourceStream("QualityBot.Test.Tests.TestData.ComparisonIsTooMany.bin"));
+            //Arrange
+            _cp.SaveToDisc(_path, obj);
             Assert.IsTrue(Directory.GetFiles(_path).Length > 0);
-        }
-
-        //[Test]
-        public void VerifyUpdateImageStyles()
-        {
-            Assert.Inconclusive("Not written");
-        }
-
-        //[Test]
-        public void VerifyUpdateSpriteStyles()
-        {
-            Assert.Inconclusive("Not written");
-        }
-
-        //[Test]
-        public void VerifyGetStyle()
-        {
-            Assert.Inconclusive("Not written");
-        }
-
-        //[Test]
-        public void GetAllImages()
-        {
-            Assert.Inconclusive("Not written");
+            //Act
+            var json = Directory.GetFiles(_path).First(file => file.Contains(".json"));
+            var result = _cp.RetrieveFromDisc(json);
+            //Assert
+            Assert.IsTrue(result != null);
         }
     }
 }

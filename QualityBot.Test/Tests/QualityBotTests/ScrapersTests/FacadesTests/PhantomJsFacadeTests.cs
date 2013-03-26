@@ -28,7 +28,7 @@
             _facade.Dispose();
         }
 
-        [Test]//Integration Test
+        [Test, Category("Integration")]//Integration Test
         public void VerifyPhantomJsFacade()
         {
             var result = _facade.ScrapeData();

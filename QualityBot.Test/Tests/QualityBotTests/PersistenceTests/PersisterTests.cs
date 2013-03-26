@@ -25,7 +25,7 @@
 
 		private static Logger log = LogManager.GetCurrentClassLogger();
 
-		[Test]
+        [Test, Category("Integration")]
 		public void TestConnectToMongoDb()
 		{
 		    var mongoDb = new MongoDbPersister();
@@ -111,8 +111,8 @@
 			Assert.IsTrue(files.Any(f => f.Contains("PixelDiff.png")));
 			
 		}
-        
-		[Test]
+
+        [Test, Category("Integration")]
 		public void TestHasRequestsCollection()
 		{
             var mongoDb = new MongoDbPersister();

@@ -44,7 +44,7 @@
             _elementMapper = new ElementMapper(diffEngine);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void HasSimilarTextMatch()
         {
             // Arrange

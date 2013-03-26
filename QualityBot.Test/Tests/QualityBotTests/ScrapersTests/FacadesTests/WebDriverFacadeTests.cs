@@ -81,7 +81,7 @@
             _facade.Dispose();
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyWebDriverFacade()
         {
             var result = _facade.ScrapeData();

@@ -4,7 +4,10 @@ namespace QualityBot.Compare
     using System.Collections.Generic;
     using System.Drawing;
     using System.Drawing.Imaging;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
     using Diff;
     using QualityBot.ComparePocos;
     using QualityBot.ScrapePocos;
@@ -19,11 +22,11 @@ namespace QualityBot.Compare
         
         public Comparer()
         {
-            _diffEngine = new DiffMatchPatch { Diff_Timeout = 0 };
-            var cm      = new ColorMatrix    { Matrix33 = 0.25f };
-            _ia         = new ImageAttributes();
+            _diffEngine       = new DiffMatchPatch { Diff_Timeout = 0 };
+            var cm            = new ColorMatrix    { Matrix33 = 0.25f };
+            _ia               = new ImageAttributes();
             _ia.SetColorMatrix(cm);
-            _elementMapper = new ElementMapper(_diffEngine);
+            _elementMapper    = new ElementMapper(_diffEngine);
             _conflictResolver = new ConflictResolver<ScrapedElement>();
         }
 
@@ -210,10 +213,9 @@ namespace QualityBot.Compare
                         }
                 };
             }
-
+            
             return comparison;
         }
-        
         private Image DrawRectanglesOnImage(IEnumerable<Rectangle> rectangles, Image image, Color color)
         {
             var newImage = (Image)image.Clone();

@@ -4,7 +4,10 @@ namespace QualityBot.Scrapers.Facades
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Drawing;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization;
+    using System.Runtime.Serialization.Formatters.Binary;
     using OpenQA.Selenium;
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
@@ -68,7 +71,10 @@ namespace QualityBot.Scrapers.Facades
         {
             var resources = (ReadOnlyCollection<object>)_js.ExecuteScript(Javascript.Resources);
 
-            return resources.Select(r => r.ToString()).ToArray();
+            return resources.Where(r => r != null)
+                            .Select(r => r.ToString())
+                            .Where(r => !string.IsNullOrWhiteSpace(r))
+                            .ToArray();
         }
 
         private string BrowserName()
@@ -187,7 +193,6 @@ namespace QualityBot.Scrapers.Facades
                     Size = size,
                     Url = url
                 };
-
             return pageData;
         }
 

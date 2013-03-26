@@ -7,7 +7,7 @@
     [TestFixture]
     class MediaServiceAliveTests
     {
-        [Test]
+        [Test, Category("Integration")]
         public void VerifyMediaServiceIsOnline()
         {
             var webRequest = (HttpWebRequest)WebRequest.Create(@"http://m.mfcreativedev.com/");

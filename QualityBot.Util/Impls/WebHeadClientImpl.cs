@@ -1,17 +1,16 @@
-namespace QualityBot.Scrapers
+namespace QualityBot.Util.Impls
 {
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
-    using QualityBot.ScrapePocos;
-    using QualityBot.Scrapers.Interfaces;
-    using QualityBot.Util;
 
-    public class WebRequestUtil : IWebRequestUtil
+    using QualityBot.Util.Interfaces;
+
+    public class WebHeadClientImpl : WebClient, IWebHeadClient
     {
         private WebRequestClient _client;
 
-        public WebRequestUtil()
+        public WebHeadClientImpl()
         {
             _client = GetWebRequestClient();
         }

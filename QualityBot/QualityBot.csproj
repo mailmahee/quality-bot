@@ -96,9 +96,7 @@
     <Compile Include="Scrapers\Facades\WebDriverFacade.cs" />
     <Compile Include="Scrapers\Interfaces\IBrowserFacade.cs" />
     <Compile Include="Scrapers\Interfaces\IElementProvider.cs" />
-    <Compile Include="Scrapers\Interfaces\IWebRequestUtil.cs" />
     <Compile Include="Scrapers\ScrapeBuilder.cs" />
-    <Compile Include="Scrapers\WebRequestUtil.cs" />
     <None Include="phantomjs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -126,9 +124,7 @@
     <Compile Include="ComparePocos\ScrapeHybrid.cs" />
     <Compile Include="ScrapePocos\ScrapedElement.cs" />
     <Compile Include="ScrapePocos\Scrape.cs" />
-    <Compile Include="ScrapePocos\Resource.cs" />
     <Compile Include="Service.cs" />
-    <Compile Include="Javascript.cs" />
     <None Include="Webinator.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

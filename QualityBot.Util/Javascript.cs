@@ -1,5 +1,7 @@
-﻿namespace QualityBot
+﻿namespace QualityBot.Util
 {
+    using QualityBot.Util.Enums;
+
     // TODO: move to resource files
     public static class Javascript
     {
@@ -23,5 +25,18 @@
 
         public const string Resources =
             @"{var res = Array();$QBjQuery('[src]').each(function(){res.push($QBjQuery(this).get(0).src);});$QBjQuery('[href]:not(a,iframe)').each(function(){res.push(this.href);});return res;}";
+
+        public static string GetLoginScript(string username, ImsLevel level)
+        {
+            var ims = new Ims(level);
+            string userId;
+
+            var att = ims.GetAtt(username, out userId);
+
+            var script = string.Format(@"{{document.cookie = ""{0}="" + escape(""{1}"") + ", "ATT", att) +
+                string.Format(@"("";path={0}"") + ("";domain={1}""); }}", "/", string.Format(".{0}.com", ims.EnvironmentLevelDictionary[level.ToString()]));
+
+            return script;
+        }
     }
 }

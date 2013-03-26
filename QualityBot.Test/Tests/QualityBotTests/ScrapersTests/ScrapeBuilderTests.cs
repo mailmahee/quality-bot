@@ -1,18 +1,18 @@
 ﻿namespace QualityBot.Test.Tests.QualityBotTests.ScrapersTests
 {
     using System.Collections.Generic;
-    using System.Drawing;
     using System.IO;
-    using System.Linq;
     using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
     using NSubstitute;
     using NUnit.Framework;
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers;
-    using QualityBot.Scrapers.Interfaces;
-    using QualityBot.Test.Tests.QualityBotFake;
+    using QualityBot.Util;
+    using QualityBot.Util.Interfaces;
 
     [TestFixture]
     class ScrapeBuilderTests
@@ -20,22 +20,16 @@
         private PageData _pageData;
         private ScrapeBuilder _scrapeBuilder;
 
-        internal string GetFromResources(string resourceName)
+        internal static Stream GetResourceStream(string resourceName)
         {
-            var assem = GetType().Assembly;
-            using (var stream = assem.GetManifestResourceStream(resourceName))
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
+            var thisExe = Assembly.GetExecutingAssembly();
+            var file = thisExe.GetManifestResourceStream(resourceName);
+            return file;
         }
-
         [TestFixtureSetUp]
         public void Setup()
         {
-            var webRequestUtilMock = Substitute.For<IWebRequestUtil>();
+            var webRequestUtilMock = Substitute.For<IWebHeadClient>();
             Resource[] resArray =
             {
                 new Resource
@@ -70,23 +64,12 @@
                     Uri = "http://www.zombo.com/inrozxa.swf"
                 } 
             });
-            _pageData = new PageData
-            {
-                Size           = new Size(800, 600),
-                Html           = GetFromResources("QualityBot.Test.Tests.TestData.FakeHTML.txt"),
-                Cookies        = new QBFake().FakeCookies(),
-                ElementsJson   = GetFromResources("QualityBot.Test.Tests.TestData.FakeElementJSON.txt"),
-                Screenshot     = new Bitmap(10, 10),
-                BrowserName    = "firefox",
-                BrowserVersion = "10.1",
-                Platform       = "WINDOWS",
-                Resources      = new[] { "http://localhost" },
-                Url            = "http://www.google.com"
-            };
+            IFormatter formatter = new BinaryFormatter();
+            _pageData = (PageData)formatter.Deserialize(GetResourceStream("QualityBot.Test.Tests.TestData.FakePageData.bin"));
             _scrapeBuilder = new ScrapeBuilder(new ElementProvider(), webRequestUtilMock);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyBuildScrape()
         {
             var result = _scrapeBuilder.BuildScrape(new Request(), _pageData);

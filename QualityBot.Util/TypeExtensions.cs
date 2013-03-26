@@ -10,6 +10,19 @@ namespace QualityBot.Util
     /// </summary>
     public static class TypeExtensions
     {
+        public static IEnumerable<R> NonNull<T, R>(this IEnumerable<T> source, Func<T, R> action)
+        {
+            if (source == null)
+            {
+                yield break;
+            }
+
+            foreach (var val in source.Where(s => s != null).Select(action).Where(val => val != null))
+            {
+                yield return val;
+            }
+        }
+
         public static decimal GetPercentageOfTotal(this decimal total, decimal value)
         {
             var percentage = total > 0 ? (value / total) * 100 : 0M;

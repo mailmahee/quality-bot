@@ -11,7 +11,6 @@ E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\QualityBot.Test.pdb
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\AutoPoco.dll
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\HtmlAgilityPack.dll
-E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\Ionic.Zip.dll
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\MongoDB.Bson.dll
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\MongoDB.Driver.dll
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\Newtonsoft.Json.dll
@@ -31,7 +30,6 @@ E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\AutoPoco.pdb
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\HtmlAgilityPack.pdb
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\HtmlAgilityPack.xml
-E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\Ionic.Zip.xml
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\MongoDB.Bson.pdb
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\MongoDB.Bson.xml
 E:\Ancestry_com\TestTools\QualityBOT\Comparer\Source\QualityBot.Test\bin\Release\MongoDB.Driver.pdb

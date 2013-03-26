@@ -1,10 +1,8 @@
-namespace QualityBot.Scrapers.Interfaces
+namespace QualityBot.Util.Interfaces
 {
     using System.Collections.Generic;
 
-    using QualityBot.ScrapePocos;
-
-    public interface IWebRequestUtil
+    public interface IWebHeadClient
     {
         Resource[] HeadCheck(IEnumerable<object> resources);
     }

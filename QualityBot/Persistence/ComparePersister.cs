@@ -29,13 +29,19 @@
                 return _mongoDbPersister ?? (_mongoDbPersister = new MongoDbPersister());
             }
         }
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ComparePersister" /> class.
+        /// </summary>
         public ComparePersister()
         {
             _mediaServicePersister = new MediaServicePersister();
             _spriteUtil = new SpriteUtil();
         }
-
+        /// <summary>
+        /// Retrieves from disc.
+        /// </summary>
+        /// <param name="file">The file path.</param>
+        /// <returns>A Comparison object</returns>
         public Comparison RetrieveFromDisc(string file)
         {
             var compareData = File.ReadAllText(file);
@@ -43,12 +49,20 @@
 
             return compare;
         }
-
+        /// <summary>
+        /// Retrieves from mongo db.
+        /// </summary>
+        /// <param name="id">The mongoDB object id.</param>
+        /// <returns>A IEnumerable object of Type Comparison</returns>
         public IEnumerable<Comparison> RetrieveFromMongoDb(string id)
         {
             return MongoDbPersister.LoadFromMongoDb<Comparison>(id);
         }
-
+        /// <summary>
+        /// Saves the Comparison to disc.
+        /// </summary>
+        /// <param name="outputDir">The output dir.</param>
+        /// <param name="data">The Comparison data.</param>
         public void SaveToDisc(string outputDir, Comparison data)
         {
             data.TimeStamp = DateTime.Now;
@@ -64,14 +78,24 @@
             var json = JsonConvert.SerializeObject(data);
             File.WriteAllText(file, json);
         }
-
+        /// <summary>
+        /// Saves the Comparison to mongo db.
+        /// </summary>
+        /// <param name="data">The Comparison data.</param>
         public void SaveToMongoDb(Comparison data)
         {
             StitchImages(data, true);
             data.TimeStamp = DateTime.Now;
             MongoDbPersister.InsertItemInCollection(data);
         }
-
+        /// <summary>
+        /// Stitches the images together and saves them.
+        /// </summary>
+        /// <param name="data">The Comparison data.</param>
+        /// <param name="mediaPersister">if set to <c>true</c> it will save the data to the media service,
+        ///  if set to <c>false</c> it will save the data to disc and will require the outputDir variable to work properly.</param>
+        /// <param name="outputDir">The output directory, required if mediaPersister is set to <c>false</c>.</param>
+        /// <param name="now">A <c>DateTime.Now.ToString()</c> result is required.</param>
         private void StitchImages(Comparison data, bool mediaPersister, string outputDir = null, string now = null)
         {
             // Save pixel diffs
@@ -182,7 +206,10 @@
                 }
             }
         }
-
+        /// <summary>
+        /// Sets the images to null.
+        /// </summary>
+        /// <param name="result">The result.</param>
         private void SetImagesToNull(PageResult result)
         {
             if (result.AddedItems != null)
@@ -219,7 +246,11 @@
                 }
             }
         }
-        //Was Private
+        /// <summary>
+        /// Updates the image styles.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="image">The image.</param>
         private void UpdateStyles(PageResult result, Image image)
         {
             var style = string.Format(_style, image.Width, image.Height, 0, 0);
@@ -249,7 +280,11 @@
                 e.PixelChanges.DiffStyle        = style;
             }
         }
-
+        /// <summary>
+        /// Updates the sprite styles.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <param name="sprite">The sprite.</param>
         private void UpdateStyles(PageResult result, Sprite sprite)
         {
             if (result.AddedItems != null)
@@ -286,13 +321,22 @@
                 }
             }
         }
-
+        /// <summary>
+        /// Gets the style.
+        /// </summary>
+        /// <param name="sprite">The sprite.</param>
+        /// <param name="image">The image.</param>
+        /// <returns>A string value</returns>
         private string GetStyle(Sprite sprite, Image image)
         {
             var r = sprite.MappedImages[image];
             return string.Format(_style, r.Width, r.Height, r.X, r.Y);
         }
-
+        /// <summary>
+        /// Gets all images.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns>An array of type Image</returns>
         private Image[] GetAllImages(PageResult result)
         {
             var images = new List<Image>();
@@ -326,7 +370,9 @@
 
             return images.ToArray();
         }
-
+        /// <summary>
+        /// Releases all the resources being used by the MediaServicePersister.
+        /// </summary>
         public void Dispose()
         {
             _mediaServicePersister.Dispose();

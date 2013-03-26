@@ -1,11 +1,7 @@
 ﻿namespace QualityBot.RequestPocos
 {
-    using System.Collections.Generic;
     using System.Drawing;
-    using System.Linq;
-
     using MongoDB.Bson;
-
     using QualityBot.Persistence;
     using QualityBot.Util;
 
@@ -136,41 +132,5 @@
             Path = new StringAsReference();
         }
 
-        protected bool Equals(Request other)
-        {
-            return string.Equals(Browser, other.Browser)
-                   && string.Equals(BrowserVersion, other.BrowserVersion)
-                   && string.Equals(Script, other.Script) 
-                   && string.Equals(Url, other.Url);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Request)obj);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = (Browser != null ? Browser.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (BrowserVersion != null ? BrowserVersion.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Script != null ? Script.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Url != null ? Url.GetHashCode() : 0);
-                return hashCode;
-            }
-        }
-
-        public static bool operator ==(Request left, Request right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(Request left, Request right)
-        {
-            return !Equals(left, right);
-        }
 	}
 }

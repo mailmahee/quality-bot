@@ -46,7 +46,7 @@
             _elementMapper = new ElementMapper(diffEngine);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void IdMatch()
         {
             // Arrange
@@ -61,7 +61,7 @@
             Assert.IsTrue(match.Attributes["id"] == "foo");
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void NoIdMatch()
         {
             // Arrange
@@ -76,7 +76,7 @@
             Assert.IsNull(match);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void ExactMatch()
         {
             // Arrange
@@ -98,7 +98,7 @@
             Assert.AreEqual("foo", match.Text);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void NoExactMatch()
         {
             // Arrange
@@ -120,7 +120,7 @@
             Assert.IsNull(match);
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void MatchUnorderedHtmlAttributes()
         {
             // Arrange

@@ -6,3 +6,19 @@ QualityBot.Service.Web
 
 # mstest test results
 TestResults
+
+*.gitignore
+assembla.pub
+
+#ignore everything within /packages/
+/packages/*
+
+#include everything within /packages/Mapper
+!/packages/Mapper/
+!/packages/Mapper/*
+!/packages/Mapper/**/*
+!/packages/DiffMatchPatch/
+!/packages/DiffMatchPatch/*
+!/packages/DiffMatchPatch/**/*
+
+

@@ -7,14 +7,14 @@
     [TestFixture]
     class RectangleUtilTests
     {
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyPositiveOrZeroCoordinates()
         {
             var rect = new Rectangle(-10,-10,10,10);
             Assert.IsTrue(RectangleUtil.PositiveOrZeroCoordinates(new Rectangle(0,0,0,0)));
             Assert.IsFalse(RectangleUtil.PositiveOrZeroCoordinates(rect));
         }
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyAreaChangeAsPercent()
         {
             var rect1 = new Rectangle(0, 0, 0, 0);
@@ -23,7 +23,7 @@
             Assert.IsFalse(RectangleUtil.AreaChangeAsPercent(new Rectangle(1,1,10,10),rect2) == 0);
             Assert.Throws<System.DivideByZeroException>(() => RectangleUtil.AreaChangeAsPercent(rect1,new Rectangle(1, 1, 10, 10)));
         }
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyAreaDifferenceBetweenRectangles()
         {
             var rect1 = new Rectangle(0, 0, 0, 0);
@@ -32,7 +32,7 @@
             Assert.IsFalse(RectangleUtil.AreaDifferenceBetweenRectangles(rect1, new Rectangle(1, 1, 10, 10)) == 0);
             Assert.IsFalse(RectangleUtil.AreaDifferenceBetweenRectangles(new Rectangle(1, 1, 10, 10),rect2) == 0);
         }
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyDistanceBetweenRectangles()
         {
             var rect1 = new Rectangle(0, 0, 0, 0);

@@ -5,12 +5,11 @@
     using QualityBot.Scrapers;
     using QualityBot.Scrapers.Facades;
     using OpenQA.Selenium;
-    using QualityBot.Scrapers.Interfaces;
 
     [TestFixture]
     class FacadeFactoryTests
     {
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyCreateFacadePhantomJs()
         {
             using (var facade = FacadeFactory.CreateFacade(new Request { Browser = "phantomjs" }))
@@ -19,20 +18,16 @@
             }
         }
 
-        [Test]
+        [Test, Category("Integration")]
         public void VerifyCreateFacadeWebdriver()
         {
             using (var facade = FacadeFactory.CreateFacade(new Request { Url = "http://www.google.com", Browser = "firefox" }))
             {
                 Assert.IsTrue(facade is WebDriverFacade);
             }
-            using (var facade = FacadeFactory.CreateFacade(new Request { Url = "http://www.google.com",Browser = "asdfasdf" }))
-            {
-                Assert.IsTrue(facade is WebDriverFacade);
-            }
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyCreateFacadeIBrowser()
         {
             var request = new Request
@@ -47,7 +42,7 @@
             }
         }
 
-        [Test]
+        [Test, Category("Unit")]
         public void VerifyCreateFacadeEdgeCases()
         {
             var request = new Request
