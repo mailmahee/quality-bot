@@ -11,18 +11,17 @@
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers.Interfaces;
     using QualityBot.Util;
-    using QualityBot.Util.Interfaces;
 
     public class ScrapeBuilder
     {
         private IElementProvider _elementProvider;
 
-        private IWebHeadClient _webHeadClient;
+        private IWebRequestUtil _webRequestUtil;
 
-        public ScrapeBuilder(IElementProvider elementProvider, IWebHeadClient webHeadClient)
+        public ScrapeBuilder(IElementProvider elementProvider, IWebRequestUtil webRequestUtil)
         {
             _elementProvider = elementProvider;
-            _webHeadClient = webHeadClient;
+            _webRequestUtil = webRequestUtil;
         }
 
         /// <summary>
@@ -41,7 +40,7 @@
             var boundingRectangle = boundingRectangleIsDefined ? request.BoundingRectangle.Value : screenshotSize;
 
             // Identify page resources
-            var pageResources = _webHeadClient.HeadCheck(pageData.Resources);
+            var pageResources = _webRequestUtil.HeadCheck(pageData.Resources);
 
             var page = AssembleScrape(request, pageData, pageResources);
 

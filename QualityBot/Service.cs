@@ -6,20 +6,14 @@
     using System.Linq;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
-    using System.Threading;
-
     using OpenQA.Selenium;
 
     using QualityBot.Compare;
     using QualityBot.ComparePocos;
-    using QualityBot.Enums;
     using QualityBot.Persistence;
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers;
-    using QualityBot.Util.Impls;
-
-    using Webinator.Impls;
 
     public class Service : IService
     {
@@ -35,7 +29,7 @@
             _scrapePersister = PersisterFactory.CreateScrapePersisterInstance();
 
             var elementProvider = new ElementProvider();
-            var webRequestUtil = new WebHeadClientImpl();
+            var webRequestUtil = new WebRequestUtil();
             _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
         }
 
@@ -45,7 +39,7 @@
             _scrapePersister = PersisterFactory.CreateScrapePersisterInstance(outputDir);
 
             var elementProvider = new ElementProvider();
-            var webRequestUtil = new WebHeadClientImpl();
+            var webRequestUtil = new WebRequestUtil();
             _scrapeBuilder = new ScrapeBuilder(elementProvider, webRequestUtil);
         }
 

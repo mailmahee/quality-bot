@@ -1,7 +1,9 @@
 ﻿namespace QualityBot.Test.Tests.QualityBotTests.ScrapersTests
 {
     using System.Collections.Generic;
+    using System.Drawing;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Reflection;
     using System.Runtime.Serialization;
@@ -11,8 +13,8 @@
     using QualityBot.RequestPocos;
     using QualityBot.ScrapePocos;
     using QualityBot.Scrapers;
-    using QualityBot.Util;
-    using QualityBot.Util.Interfaces;
+    using QualityBot.Scrapers.Interfaces;
+    using QualityBot.Test.Tests.QualityBotFake;
 
     [TestFixture]
     class ScrapeBuilderTests
@@ -29,7 +31,7 @@
         [TestFixtureSetUp]
         public void Setup()
         {
-            var webRequestUtilMock = Substitute.For<IWebHeadClient>();
+            var webRequestUtilMock = Substitute.For<IWebRequestUtil>();
             Resource[] resArray =
             {
                 new Resource

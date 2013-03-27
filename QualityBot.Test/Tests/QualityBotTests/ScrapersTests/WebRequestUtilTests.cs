@@ -3,12 +3,12 @@
     using System.Collections.Generic;
     using System.IO;
     using NUnit.Framework;
-    using QualityBot.Util.Impls;
+    using QualityBot.Scrapers;
 
     [TestFixture]
     class WebRequestUtilTests
     {
-        private WebHeadClientImpl _client;
+        private WebRequestUtil _client;
         private IEnumerable<object> _resources;
 
         internal string GetFromResources(string resourceName)
@@ -26,7 +26,7 @@
         [TestFixtureSetUp]
         public void Setup()
         {
-            _client = new WebHeadClientImpl();
+            _client = new WebRequestUtil();
             var res = GetFromResources("QualityBot.Test.Tests.TestData.FakeResources.txt");
             _resources = res.Split('\n');
         }
